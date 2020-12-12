@@ -1,0 +1,9 @@
+name: Balls
+version: ${project.version}
+main: online.umbcraft.balls.Balls
+api-version: 1.16
+prefix: Balls
+load: STARTUP
+authors: [Ivan8or]
+description: Christmas PvP Game
+website: umbcraft.online
