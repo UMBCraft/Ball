@@ -8,16 +8,12 @@ import java.io.File;
 
 public final class Balls extends JavaPlugin {
 
-    private FileConfiguration config;
-
     @Override
     public void onEnable() {
 
         File configFile = new File(this.getDataFolder(), "config.yml");
         if (!configFile.exists())
             this.saveDefaultConfig();
-
-        config = this.getConfig();
 
         SnowEventListener snow_listener = new SnowEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(snow_listener, this);

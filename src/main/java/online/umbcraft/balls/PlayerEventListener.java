@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.*;
 
@@ -26,9 +27,22 @@ public class PlayerEventListener implements Listener {
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
+    List<Location> player_spawns = new ArrayList<Location>();
 
     public PlayerEventListener(Balls p) {
         this.plugin = p;
+        if (p.getConfig() != null
+                && p.getConfig().getList("player-spawns") != null)
+            for (Object s : p.getConfig().getList("player-spawns")) {
+                System.out.println(s);
+                String[] coords = ((String) s).split(",");
+
+                player_spawns.add(new Location(null,
+                        Double.parseDouble(coords[0]),
+                        Double.parseDouble(coords[1]),
+                        Double.parseDouble(coords[2])
+                ));
+            }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -65,7 +79,7 @@ public class PlayerEventListener implements Listener {
     // always adds snow to bottommost block
     private void incrementSnow(Location loc, Player p) {
         Block original = loc.getBlock();
-        final double TP_AMNT = 0.45;
+        final double TP_AMNT = 0.175;
         Block to_set;
         if (original.getType() == Material.AIR) {
             while ((to_set = original.getLocation().add(0, -1, 0).getBlock()).getType() == Material.AIR) {
@@ -76,8 +90,8 @@ public class PlayerEventListener implements Listener {
             if (original.getType() != Material.SNOW || ((Snow) original.getBlockData()).getLayers() == 8) {
                 loc = original.getLocation().add(0, 1, 0);
                 loc.getBlock().setType(Material.SNOW);
-                for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
-                    e.teleport(e.getLocation().add(0,TP_AMNT,0));
+                for (Entity e : loc.getWorld().getNearbyEntities(loc, 0.5, 1, 0.5))
+                    e.teleport(e.getLocation().add(0, TP_AMNT, 0));
                 return;
             }
         } else {
@@ -88,8 +102,8 @@ public class PlayerEventListener implements Listener {
             if (original.getType() == Material.AIR) {
                 original.setType(Material.SNOW);
                 loc = original.getLocation();
-                for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
-                    e.teleport(e.getLocation().add(0,TP_AMNT,0));
+                for (Entity e : loc.getWorld().getNearbyEntities(loc, 0.5, 1, 0.5))
+                    e.teleport(e.getLocation().add(0, TP_AMNT, 0));
                 return;
             }
 
@@ -98,8 +112,8 @@ public class PlayerEventListener implements Listener {
         snow.setLayers(snow.getLayers() + 1);
         original.setBlockData(snow);
         loc = original.getLocation();
-        for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
-            e.teleport(e.getLocation().add(0,TP_AMNT,0));
+        for (Entity e : loc.getWorld().getNearbyEntities(loc, 0.5, 1, 0.5))
+            e.teleport(e.getLocation().add(0, TP_AMNT, 0));
     }
 
     // always removes snow from topmost block
@@ -131,7 +145,27 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent e) {
+        if(player_spawns.size() > 0) {
+            Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
+            e.setRespawnLocation(new Location(e.getPlayer().getWorld(),
+                    random_loc.getX() + 0.5,
+                    random_loc.getY() + 1.5,
+                    random_loc.getZ() + 0.5));
+        }
+    }
 
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onJoin(PlayerSpawnLocationEvent e) {
+        e.getPlayer().setFoodLevel(20);
+        e.getPlayer().setHealth(20);
+
+        if(player_spawns.size() > 0) {
+            Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
+            e.setSpawnLocation(new Location(e.getPlayer().getWorld(),
+                    random_loc.getX() + 0.5,
+                    random_loc.getY() + 1.5,
+                    random_loc.getZ() + 0.5));
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
