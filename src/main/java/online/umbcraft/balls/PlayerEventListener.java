@@ -57,7 +57,7 @@ public class PlayerEventListener implements Listener {
                     incrementSnow(block.getLocation(), e.getPlayer());
                 }
             }
-                    .runTaskLater(plugin, 2400);
+                    .runTaskLater(plugin, 240); //2400 = 2 mins
             return;
         }
     }
@@ -65,6 +65,7 @@ public class PlayerEventListener implements Listener {
     // always adds snow to bottommost block
     private void incrementSnow(Location loc, Player p) {
         Block original = loc.getBlock();
+        final double TP_AMNT = 0.45;
         Block to_set;
         if (original.getType() == Material.AIR) {
             while ((to_set = original.getLocation().add(0, -1, 0).getBlock()).getType() == Material.AIR) {
@@ -73,7 +74,10 @@ public class PlayerEventListener implements Listener {
             original = original.getLocation().add(0, -1, 0).getBlock();
 
             if (original.getType() != Material.SNOW || ((Snow) original.getBlockData()).getLayers() == 8) {
-                original.getLocation().add(0, 1, 0).getBlock().setType(Material.SNOW);
+                loc = original.getLocation().add(0, 1, 0);
+                loc.getBlock().setType(Material.SNOW);
+                for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
+                    e.teleport(e.getLocation().add(0,TP_AMNT,0));
                 return;
             }
         } else {
@@ -81,13 +85,21 @@ public class PlayerEventListener implements Listener {
                     && ((Snow) original.getBlockData()).getLayers() == 8)
                 original = original.getLocation().add(0, 1, 0).getBlock();
 
-            if (original.getType() == Material.AIR)
+            if (original.getType() == Material.AIR) {
                 original.setType(Material.SNOW);
+                loc = original.getLocation();
+                for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
+                    e.teleport(e.getLocation().add(0,TP_AMNT,0));
+                return;
+            }
 
         }
         Snow snow = (Snow) original.getBlockData();
         snow.setLayers(snow.getLayers() + 1);
         original.setBlockData(snow);
+        loc = original.getLocation();
+        for(Entity e: loc.getWorld().getNearbyEntities(loc,0.55,1,0.55))
+            e.teleport(e.getLocation().add(0,TP_AMNT,0));
     }
 
     // always removes snow from topmost block
@@ -129,7 +141,7 @@ public class PlayerEventListener implements Listener {
 
             Snowball snowball = (Snowball) e.getDamager();
             Entity shooter = (Entity) snowball.getShooter();
-            e.getEntity().setVelocity(shooter.getLocation().getDirection().normalize().setY(1).multiply(1.25));
+            e.getEntity().setVelocity(shooter.getLocation().getDirection().setY(0).normalize().multiply(1.25));
 
             e.setDamage(3);
             return;
