@@ -11,13 +11,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -57,6 +55,7 @@ public class PlayerEventListener implements Listener {
         if (e.getAction() == Action.LEFT_CLICK_BLOCK
                 && e.getClickedBlock().getType() == Material.SNOW
                 && !e.getPlayer().getInventory().containsAtLeast(new ItemStack(Material.SNOWBALL), 16)) {
+
             if (recent_collectors.contains(e.getPlayer().getUniqueId()))
                 return;
             recent_collectors.add(e.getPlayer().getUniqueId());
@@ -147,16 +146,6 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onTryBreakBlock(BlockBreakEvent e) {
-        e.setCancelled(true);
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onTryTossItem(PlayerDropItemEvent e) {
-        e.setCancelled(true);
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent e) {
         if(player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
@@ -228,6 +217,12 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onTryCrafting(InventoryClickEvent e) {
+
+        if(e.getSlotType() == InventoryType.SlotType.CONTAINER)
+            return;
+        if(e.getSlotType() == InventoryType.SlotType.QUICKBAR
+            && e.getSlot() != 40)
+            return;
         e.setCancelled(true);
     }
 
@@ -236,4 +231,29 @@ public class PlayerEventListener implements Listener {
         e.setCancelled(true);
     }
 
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onTryOpenChest(InventoryOpenEvent e) {
+        if(e.getInventory().getType() != InventoryType.PLAYER)
+            e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onTryBreakBlock(BlockBreakEvent e) {
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onTryTossItem(PlayerDropItemEvent e) {
+        if(e.getItemDrop().getItemStack().getType() == Material.SNOWBALL)
+            e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onDeath(PlayerDeathEvent e) {
+        for(ItemStack i: e.getDrops())
+            if(i.getType() == Material.SNOWBALL)
+                i.setType(Material.AIR);
+
+
+    }
 }

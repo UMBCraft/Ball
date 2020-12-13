@@ -33,27 +33,32 @@ public class LuckySnows {
     }
 
     public static void drawCoal(Player p) {
-        ItemStack coal = new ItemStack(Material.COAL);
-        ItemMeta coal_meta = coal.getItemMeta();
-        coal_meta.setDisplayName(ChatColor.GRAY + "Gritty Coal");
-        coal.setItemMeta(coal_meta);
-        p.getInventory().addItem(coal);
+        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.GRAY + "Gritty Coal"+ChatColor.DARK_GRAY+"]";
+        giftItem(p, Material.COAL, item_name);
     }
 
     public static void drawBerry(Player p) {
-        ItemStack berry = new ItemStack(Material.SWEET_BERRIES);
-        ItemMeta berry_meta = berry.getItemMeta();
-        berry_meta.setDisplayName(ChatColor.DARK_PURPLE + "Holiday Berries");
-        berry.setItemMeta(berry_meta);
-        p.getInventory().addItem(berry);
+        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.DARK_PURPLE + "Holiday Berries"+ChatColor.DARK_GRAY+"]";
+        giftItem(p, Material.SWEET_BERRIES, item_name);
 
     }
 
     public static void drawGun(Player p) {
-        ItemStack gun = new ItemStack(Material.IRON_HOE);
-        ItemMeta gun_meta = gun.getItemMeta();
-        gun_meta.setDisplayName(ChatColor.GRAY + "Snow Blower");
-        gun.setItemMeta(gun_meta);
-        p.getInventory().addItem(gun);
+        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.GRAY + "Snow Blower"+ChatColor.DARK_GRAY+"]";
+        giftItem(p, Material.IRON_HOE, item_name);
+    }
+
+    public static void giftItem(Player p, Material type, int amount, String name) {
+        p.sendMessage(ChatColor.RED+"[!]"+ChatColor.GREEN+"You found "+name);
+
+        ItemStack gift = new ItemStack(type, amount);
+        ItemMeta gift_meta = gift.getItemMeta();
+        gift_meta.setDisplayName(name);
+        gift.setItemMeta(gift_meta);
+        p.getInventory().addItem(gift);
+    }
+
+    public static void giftItem(Player p, Material type, String name) {
+        giftItem(p, type,1,name);
     }
 }

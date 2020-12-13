@@ -31,6 +31,16 @@ public class LuckyEventListener implements Listener {
         plugin = p;
     }
 
+
+    public void addRecentUser(UUID uuid, int tick_amount) {
+        recent_users.add(uuid);
+        new BukkitRunnable() {
+            public void run() {
+                recent_users.remove(uuid);
+            }
+        }
+                .runTaskLater(plugin, tick_amount);
+    }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onUseItem(PlayerInteractEvent e) {
         if (e.getItem().getType() == Material.SNOWBALL)
@@ -42,16 +52,11 @@ public class LuckyEventListener implements Listener {
         Material type = e.getItem().getType();
         if (recent_users.contains(e.getPlayer().getUniqueId()))
             return;
-        recent_users.add(e.getPlayer().getUniqueId());
 
-        new BukkitRunnable() {
-            public void run() {
-                recent_users.remove(e.getPlayer().getUniqueId());
-            }
-        }
-                .runTaskLater(plugin, 10);
+
 
         if (type == Material.COAL) {
+            addRecentUser(e.getPlayer().getUniqueId(), 20);
             e.setCancelled(true);
             e.getItem().setAmount(e.getItem().getAmount() - 1);
             e.getPlayer().sendMessage(ChatColor.GRAY + "A cloud of soot appears, blinding everyone around you!");
@@ -70,6 +75,7 @@ public class LuckyEventListener implements Listener {
             }
         }
         if (type == Material.SWEET_BERRIES) {
+            addRecentUser(e.getPlayer().getUniqueId(), 20);
             e.setCancelled(true);
             e.getItem().setAmount(e.getItem().getAmount() - 1);
             e.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "You eat the berries and feel a sudden burst in energy!");
@@ -79,36 +85,42 @@ public class LuckyEventListener implements Listener {
         }
 
         if (type == Material.IRON_HOE) {
+            addRecentUser(e.getPlayer().getUniqueId(), 15);
             e.setCancelled(true);
             if (!e.getPlayer().getInventory().containsAtLeast(new ItemStack(Material.SNOWBALL), 2)) {
                 e.getPlayer().sendMessage(ChatColor.BOLD + "" + ChatColor.WHITE + "You don't have enough snowballs!");
                 return;
             }
 
-
             //remove snowball ammo from inventory
             e.getPlayer().getInventory().removeItem(new ItemStack(Material.SNOWBALL, 2));
-
 
             //remove durability from gun
             ItemStack gun = e.getItem();
             Damageable new_gun_meta = (Damageable) (gun.getItemMeta());
-            int new_dura = new_gun_meta.getDamage() + 10;
-            if (new_dura <= 255) {
+            int new_damage = new_gun_meta.getDamage() + 10;
+
+            if (new_damage <= 250) {
                 new_gun_meta.setDamage(new_gun_meta.getDamage() + 10);
                 gun.setItemMeta((ItemMeta) new_gun_meta);
             } else
-                gun.setType(Material.AIR);
+                e.getPlayer().getInventory().remove(gun);
 
             float accuracy = 0.4f;
-            for (int i = 0; i < 4; i++) {
+            int num_snowballs = 5;
+            if(e.getPlayer().isSneaking()) {
+                accuracy = 0.025f;
+                num_snowballs = 3;
+            }
+
+            for (int i = 0; i < num_snowballs; i++) {
                 Snowball snowball = e.getPlayer().launchProjectile(Snowball.class);
                 Vector velocity = e.getPlayer().getLocation().getDirection();
                 velocity.add(new Vector(
                         Math.random() * accuracy - (accuracy / 2),
                         Math.random() * accuracy - (accuracy / 2),
                         Math.random() * accuracy - (accuracy / 2)));
-                velocity.multiply(5);
+                velocity.multiply(2);
                 snowball.setVelocity(velocity);
             }
         }
