@@ -2,6 +2,7 @@ package online.umbcraft.balls;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.*;
@@ -14,9 +15,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
@@ -24,6 +29,8 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 import java.util.*;
 
 public class PlayerEventListener implements Listener {
+
+    private final int SNOW_REGEN_DELAY = 2400;
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
@@ -50,7 +57,6 @@ public class PlayerEventListener implements Listener {
         if (e.getAction() == Action.LEFT_CLICK_BLOCK
                 && e.getClickedBlock().getType() == Material.SNOW
                 && !e.getPlayer().getInventory().containsAtLeast(new ItemStack(Material.SNOWBALL), 16)) {
-
             if (recent_collectors.contains(e.getPlayer().getUniqueId()))
                 return;
             recent_collectors.add(e.getPlayer().getUniqueId());
@@ -63,21 +69,28 @@ public class PlayerEventListener implements Listener {
                     .runTaskLater(plugin, 4);
 
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
+
+            if((int)(Math.random()*64) == 1) // RANDOM STUFF!! WOO!!!
+                LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
+
+
             Block block = e.getClickedBlock();
             decrementSnow(block.getLocation());
 
             new BukkitRunnable() {
                 public void run() {
-                    incrementSnow(block.getLocation(), e.getPlayer());
+                    incrementSnow(block.getLocation());
                 }
             }
-                    .runTaskLater(plugin, 240); //2400 = 2 mins
+                    .runTaskLater(plugin, SNOW_REGEN_DELAY);
             return;
         }
     }
 
+
+
     // always adds snow to bottommost block
-    private void incrementSnow(Location loc, Player p) {
+    private void incrementSnow(Location loc) {
         Block original = loc.getBlock();
         final double TP_AMNT = 0.175;
         Block to_set;
@@ -158,6 +171,7 @@ public class PlayerEventListener implements Listener {
     public void onJoin(PlayerSpawnLocationEvent e) {
         e.getPlayer().setFoodLevel(20);
         e.getPlayer().setHealth(20);
+        e.getPlayer().getInventory().clear();
 
         if(player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
@@ -176,7 +190,8 @@ public class PlayerEventListener implements Listener {
             Snowball snowball = (Snowball) e.getDamager();
             Entity shooter = (Entity) snowball.getShooter();
             e.getEntity().setVelocity(shooter.getLocation().getDirection().setY(0).normalize().multiply(1.25));
-
+            if(shooter instanceof Player)
+                ((Player)shooter).playSound(shooter.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1f);
             e.setDamage(3);
             return;
         }
@@ -184,7 +199,40 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
+    public void onSnowballHitSNow(ProjectileHitEvent e) {
+
+        if(!(e.getEntity() instanceof Snowball))
+            return;
+
+        Block b = e.getHitBlock();
+        if(b == null)
+            return;
+
+        if(b.getType() != Material.SNOW)
+            return;
+
+        decrementSnow(b.getLocation());
+        new BukkitRunnable() {
+            public void run() {
+                incrementSnow(b.getLocation());
+            }
+        }
+        .runTaskLater(plugin, SNOW_REGEN_DELAY);
+
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onHunger(FoodLevelChangeEvent e) {
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onTryCrafting(InventoryClickEvent e) {
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onUseOffhand(PlayerSwapHandItemsEvent e) {
         e.setCancelled(true);
     }
 

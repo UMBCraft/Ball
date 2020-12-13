@@ -15,14 +15,14 @@ public final class Balls extends JavaPlugin {
         if (!configFile.exists())
             this.saveDefaultConfig();
 
-        SnowEventListener snow_listener = new SnowEventListener(this);
-        Bukkit.getServer().getPluginManager().registerEvents(snow_listener, this);
-
         PlayerEventListener player_listener = new PlayerEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(player_listener, this);
 
         WandEventListener wand_listener = new WandEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(wand_listener, this);
+
+        LuckyEventListener special_listener = new LuckyEventListener(this);
+        Bukkit.getServer().getPluginManager().registerEvents(special_listener, this);
 
         this.getCommand("balls").setExecutor(new BallsCommands(this));
     }
