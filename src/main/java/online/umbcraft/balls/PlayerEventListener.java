@@ -30,7 +30,7 @@ import java.util.*;
 
 public class PlayerEventListener implements Listener {
 
-    private final int SNOW_REGEN_DELAY = 2400;
+    private final int SNOW_REGEN_DELAY = 20;
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
@@ -191,7 +191,7 @@ public class PlayerEventListener implements Listener {
             Entity shooter = (Entity) snowball.getShooter();
             e.getEntity().setVelocity(shooter.getLocation().getDirection().setY(0).normalize().multiply(1.25));
             if(shooter instanceof Player)
-                ((Player)shooter).playSound(shooter.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1f);
+                ((Player)shooter).playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
             e.setDamage(3);
             return;
         }
