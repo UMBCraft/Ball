@@ -13,7 +13,7 @@ public class LuckySnows {
     public static void drawItem(Player p, Block b) {
 
 
-        int result = (int) (Math.random() * 3);
+        int result = (int) (Math.random() * 4);
         switch (result) {
             case (0):
                 drawCoal(p);
@@ -24,8 +24,9 @@ public class LuckySnows {
             case (2):
                 drawGun(p);
                 break;
-            //    case (3):
-            //         break;
+            case (3):
+                drawIcicle(p);
+                 break;
             //     case (4):
             //         break;
             // }
@@ -44,12 +45,17 @@ public class LuckySnows {
     }
 
     public static void drawGun(Player p) {
-        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.GRAY + "Snow Blower"+ChatColor.DARK_GRAY+"]";
+        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.BLUE + "Snow Blower"+ChatColor.DARK_GRAY+"]";
         giftItem(p, Material.IRON_HOE, item_name);
     }
 
+    public static void drawIcicle(Player p) {
+        String item_name = ChatColor.DARK_GRAY+"["+ChatColor.AQUA + "Ice Shard"+ChatColor.DARK_GRAY+"]";
+        giftItem(p, Material.PRISMARINE_SHARD, item_name);
+    }
+
     public static void giftItem(Player p, Material type, int amount, String name) {
-        p.sendMessage(ChatColor.RED+"[!]"+ChatColor.GREEN+"You found "+name);
+        p.sendMessage(ChatColor.RED+"[!] "+ChatColor.GREEN+"You found "+name);
 
         ItemStack gift = new ItemStack(type, amount);
         ItemMeta gift_meta = gift.getItemMeta();

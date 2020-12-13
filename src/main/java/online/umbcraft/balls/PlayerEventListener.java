@@ -1,5 +1,6 @@
 package online.umbcraft.balls;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -11,15 +12,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
@@ -28,7 +24,7 @@ import java.util.*;
 
 public class PlayerEventListener implements Listener {
 
-    private final int SNOW_REGEN_DELAY = 20;
+    private final int SNOW_REGEN_DELAY = 2400;
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
@@ -69,7 +65,7 @@ public class PlayerEventListener implements Listener {
 
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
-            if((int)(Math.random()*64) == 1) // RANDOM STUFF!! WOO!!!
+            if ((int) (Math.random() * 64) == 1) // RANDOM STUFF!! WOO!!!
                 LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
 
 
@@ -85,7 +81,6 @@ public class PlayerEventListener implements Listener {
             return;
         }
     }
-
 
 
     // always adds snow to bottommost block
@@ -147,7 +142,7 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent e) {
-        if(player_spawns.size() > 0) {
+        if (player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
             e.setRespawnLocation(new Location(e.getPlayer().getWorld(),
                     random_loc.getX() + 0.5,
@@ -162,7 +157,7 @@ public class PlayerEventListener implements Listener {
         e.getPlayer().setHealth(20);
         e.getPlayer().getInventory().clear();
 
-        if(player_spawns.size() > 0) {
+        if (player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
             e.setSpawnLocation(new Location(e.getPlayer().getWorld(),
                     random_loc.getX() + 0.5,
@@ -179,8 +174,10 @@ public class PlayerEventListener implements Listener {
             Snowball snowball = (Snowball) e.getDamager();
             Entity shooter = (Entity) snowball.getShooter();
             e.getEntity().setVelocity(shooter.getLocation().getDirection().setY(0).normalize().multiply(1.25));
-            if(shooter instanceof Player)
-                ((Player)shooter).playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
+            if (shooter instanceof Player) {
+                ((Player) shooter).playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
+                ((Player) shooter).stopSound(Sound.ENTITY_PLAYER_HURT);
+            }
             e.setDamage(3);
             return;
         }
@@ -190,14 +187,14 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onSnowballHitSNow(ProjectileHitEvent e) {
 
-        if(!(e.getEntity() instanceof Snowball))
+        if (!(e.getEntity() instanceof Snowball))
             return;
 
         Block b = e.getHitBlock();
-        if(b == null)
+        if (b == null)
             return;
 
-        if(b.getType() != Material.SNOW)
+        if (b.getType() != Material.SNOW)
             return;
 
         decrementSnow(b.getLocation());
@@ -206,7 +203,7 @@ public class PlayerEventListener implements Listener {
                 incrementSnow(b.getLocation());
             }
         }
-        .runTaskLater(plugin, SNOW_REGEN_DELAY);
+                .runTaskLater(plugin, SNOW_REGEN_DELAY);
 
     }
 
@@ -217,12 +214,27 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onTryCrafting(InventoryClickEvent e) {
+        if (e.getAction() != InventoryAction.DROP_ALL_CURSOR
+                && e.getAction() != InventoryAction.DROP_ONE_SLOT
+                && e.getAction() != InventoryAction.DROP_ONE_CURSOR
+                && e.getAction() != InventoryAction.PICKUP_ALL
+                && e.getAction() != InventoryAction.PICKUP_HALF
+                && e.getAction() != InventoryAction.PLACE_ALL
+                && e.getAction() != InventoryAction.PLACE_ONE
+                && e.getAction() != InventoryAction.SWAP_WITH_CURSOR) {
+            e.getWhoClicked().closeInventory();
+            e.setCancelled(true);
+            return;
+        }
 
-        if(e.getSlotType() == InventoryType.SlotType.CONTAINER)
+        if (e.getSlotType() == InventoryType.SlotType.CONTAINER ||
+                e.getSlot() == -999)
             return;
-        if(e.getSlotType() == InventoryType.SlotType.QUICKBAR
-            && e.getSlot() != 40)
+        if (e.getSlotType() == InventoryType.SlotType.QUICKBAR
+                && e.getSlot() != 40)
             return;
+
+        e.getWhoClicked().closeInventory();
         e.setCancelled(true);
     }
 
@@ -233,8 +245,11 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onTryOpenChest(InventoryOpenEvent e) {
-        if(e.getInventory().getType() != InventoryType.PLAYER)
-            e.setCancelled(true);
+
+        if (e.getInventory().getType() == InventoryType.PLAYER ||
+                e.getInventory().getLocation() == null)
+            return;
+        e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -244,14 +259,42 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onTryTossItem(PlayerDropItemEvent e) {
-        if(e.getItemDrop().getItemStack().getType() == Material.SNOWBALL)
+        if (e.getItemDrop().getItemStack().getType() == Material.SNOWBALL)
             e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlaceBlock(BlockPlaceEvent e) {
+        e.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPickUpItem(EntityPickupItemEvent e) {
+        if (e.getEntity().getType() != EntityType.PLAYER) {
+            e.setCancelled(true);
+            return;
+        }
+
+        Player p = (Player) e.getEntity();
+        if (e.getItem().getItemStack().getType() == Material.PRISMARINE_SHARD) {
+
+            if (e.getItem().getItemStack().getItemMeta() != null
+                    && e.getItem().getItemStack().getItemMeta().getLore() != null) {
+
+                e.setCancelled(true);
+                if (e.getItem().getThrower() == p.getUniqueId())
+                    return;
+                LuckyEventListener.placeIcicleSphere(e.getItem());
+            }
+        }
+
+
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onDeath(PlayerDeathEvent e) {
-        for(ItemStack i: e.getDrops())
-            if(i.getType() == Material.SNOWBALL)
+        for (ItemStack i : e.getDrops())
+            if (i.getType() == Material.SNOWBALL)
                 i.setType(Material.AIR);
 
 
