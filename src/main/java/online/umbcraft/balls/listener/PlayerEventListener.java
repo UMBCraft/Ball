@@ -1,9 +1,9 @@
-package online.umbcraft.balls;
+package online.umbcraft.balls.listener;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import online.umbcraft.balls.Balls;
+import online.umbcraft.balls.LuckySnows;
+import online.umbcraft.balls.listener.LuckyEventListener;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.*;
@@ -17,6 +17,8 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
@@ -24,7 +26,7 @@ import java.util.*;
 
 public class PlayerEventListener implements Listener {
 
-    private final int SNOW_REGEN_DELAY = 2400;
+    private final int SNOW_REGEN_DELAY = 24; //2400
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
@@ -65,7 +67,7 @@ public class PlayerEventListener implements Listener {
 
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
-            if ((int) (Math.random() * 64) == 1) // RANDOM STUFF!! WOO!!!
+            if ((int) (Math.random() * 4) == 1) // RANDOM STUFF!! WOO!!!
                 LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
 
 
@@ -115,6 +117,13 @@ public class PlayerEventListener implements Listener {
             }
 
         }
+
+        if (original.getType() == Material.ICE &&
+        original.getMetadata("placed_block").contains("yes")) {
+            original.setType(Material.SNOW);
+            return;
+        }
+
         Snow snow = (Snow) original.getBlockData();
         snow.setLayers(snow.getLayers() + 1);
         original.setBlockData(snow);
@@ -140,8 +149,31 @@ public class PlayerEventListener implements Listener {
             original.setType(Material.AIR);
     }
 
+
+    private void applyPlayerArmor(PlayerInventory p, Color c) {
+
+        ItemStack helm = new ItemStack(Material.LEATHER_HELMET);
+        ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
+        ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
+        ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
+        LeatherArmorMeta meta = (LeatherArmorMeta) helm.getItemMeta();
+        meta.setDisplayName(ChatColor.GRAY+"Snow Suit");
+        meta.setColor(c);
+
+        helm.setItemMeta(meta);
+        chest.setItemMeta(meta);
+        legs.setItemMeta(meta);
+        boots.setItemMeta(meta);
+
+        p.setHelmet(helm);
+        p.setChestplate(chest);
+        p.setLeggings(legs);
+        p.setBoots(boots);
+    }
+
     @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent e) {
+
         if (player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
             e.setRespawnLocation(new Location(e.getPlayer().getWorld(),
@@ -149,13 +181,23 @@ public class PlayerEventListener implements Listener {
                     random_loc.getY() + 1.5,
                     random_loc.getZ() + 0.5));
         }
+        applyPlayerArmor(e.getPlayer().getInventory(), Color.WHITE);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onJoin(PlayerSpawnLocationEvent e) {
+
+        new BukkitRunnable() {
+            public void run() {
+                plugin.getScores().addPlayer(e.getPlayer());
+            }
+        }
+                .runTaskLater(plugin, 20);
+
         e.getPlayer().setFoodLevel(20);
         e.getPlayer().setHealth(20);
         e.getPlayer().getInventory().clear();
+        applyPlayerArmor(e.getPlayer().getInventory(), Color.WHITE);
 
         if (player_spawns.size() > 0) {
             Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
@@ -164,6 +206,11 @@ public class PlayerEventListener implements Listener {
                     random_loc.getY() + 1.5,
                     random_loc.getZ() + 0.5));
         }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onLeave(PlayerQuitEvent e) {
+        plugin.getScores().removePlayer(e.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -282,21 +329,32 @@ public class PlayerEventListener implements Listener {
                     && e.getItem().getItemStack().getItemMeta().getLore() != null) {
 
                 e.setCancelled(true);
-                if (e.getItem().getThrower() == p.getUniqueId())
-                    return;
                 LuckyEventListener.placeIcicleSphere(e.getItem());
             }
         }
-
-
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onDeath(PlayerDeathEvent e) {
-        for (ItemStack i : e.getDrops())
-            if (i.getType() == Material.SNOWBALL)
+        for (ItemStack i : e.getDrops()) {
+            if (i.getType() == Material.SNOWBALL ||
+            i.getType().name().contains("LEATHER"))
                 i.setType(Material.AIR);
+        }
 
+        Player who_died = e.getEntity();
 
+        int ded_score = plugin.getScores().getPlayerScore(who_died.getUniqueId());
+        plugin.getScores().setPlayerScore(who_died.getUniqueId(),0);
+        Player killer = who_died.getKiller();
+
+        if (killer != null && killer instanceof Player) {
+            plugin.getScores().adjustPlayerScore(killer.getUniqueId(),25 + ded_score/2);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onDamageItem(PlayerItemDamageEvent e){
+        e.setCancelled(true);
     }
 }

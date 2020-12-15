@@ -1,5 +1,6 @@
-package online.umbcraft.balls;
+package online.umbcraft.balls.listener;
 
+import online.umbcraft.balls.Balls;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -13,6 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -69,10 +71,10 @@ public class LuckyEventListener implements Listener {
             //remove durability from gun
             ItemStack gun = e.getItem();
             Damageable new_gun_meta = (Damageable) (gun.getItemMeta());
-            int new_damage = new_gun_meta.getDamage() + 10;
+            int new_damage = new_gun_meta.getDamage() + 15;
 
             if (new_damage <= 250) {
-                new_gun_meta.setDamage(new_gun_meta.getDamage() + 10);
+                new_gun_meta.setDamage(new_damage);
                 gun.setItemMeta((ItemMeta) new_gun_meta);
             } else
                 e.getPlayer().getInventory().remove(gun);
@@ -103,29 +105,30 @@ public class LuckyEventListener implements Listener {
             e.getPlayer().sendMessage(ChatColor.GRAY + "A cloud of soot appears, blinding everyone around you!");
             Location l = e.getPlayer().getLocation();
 
-            double circle_radius = 2.5;
+            double circle_radius = 4.5;
             for (double a = 0; a < Math.PI*2; a+= Math.PI / (Math.PI * circle_radius)) {
                 double x = Math.cos(a) * circle_radius;
                 double z = Math.sin(a) * circle_radius;
                 Location to_set = l.clone().add(x, 0, z);
-                to_set.getWorld().spawnParticle(Particle.SQUID_INK, to_set, 100);
+                to_set.getWorld().spawnParticle(Particle.SQUID_INK, to_set, 5);
             }
 
             Collection<Entity> entities = l.getWorld().getNearbyEntities(l, 5, 5, 5);
             entities.remove(e.getPlayer());
+            PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 4 * 20, 2);
+            PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 8 * 20, 1);
 
-            for (Entity ent : entities) {
+            for (Entity ent : entities)
                 if (ent instanceof LivingEntity) {
-                    ((LivingEntity) ent).addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 5 * 20, 2));
-                    ((LivingEntity) ent).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10 * 20, 1));
+                    wither.apply((LivingEntity)ent);
+                    blindness.apply((LivingEntity)ent);
                 }
-            }
         }
 
         if (type == Material.PRISMARINE_SHARD) {
-            addRecentUser(e.getPlayer().getUniqueId(), 20);
+            addRecentUser(e.getPlayer().getUniqueId(), 40);
             e.setCancelled(true);
-            e.getPlayer().sendMessage(ChatColor.BLUE + "You throw the Icicle, causing it to shatter!");
+            e.getPlayer().sendMessage(ChatColor.AQUA + "You throw the Icicle, causing it to shatter!");
             e.getItem().setAmount(e.getItem().getAmount() - 1);
 
             ItemStack shard = new ItemStack(Material.PRISMARINE_SHARD);
@@ -145,7 +148,7 @@ public class LuckyEventListener implements Listener {
             temp_snowball.remove();
 
             shard_item.setVelocity(item_velocity.add(new Vector(0,0.5,0)).multiply(0.75));
-            shard_item.setPickupDelay(2);
+            shard_item.setPickupDelay(10);
 
             shard_item.setThrower(e.getPlayer().getUniqueId());
             new BukkitRunnable() {
@@ -172,7 +175,7 @@ public class LuckyEventListener implements Listener {
 
 
     public static void placeIcicleSphere(Item icicle) {
-        if(icicle == null)
+        if(icicle.isDead())
             return;
 
         Location center = icicle.getLocation().getBlock().getLocation().add(new Vector(0.5,0.5,0.5));
@@ -180,9 +183,10 @@ public class LuckyEventListener implements Listener {
 
         icicle.remove();
         double sphere_radius = 2.5;
-        center.getWorld().playSound(center,Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 20, 1f);
+
+        center.getWorld().playSound(center,Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 10, 1f);
         int incr = 0;
-        for (double i = 0; i <= Math.PI; i += Math.PI / (Math.PI * sphere_radius * 2)) {
+        for (double i = Math.PI; i >= 0; i -= Math.PI / (Math.PI * sphere_radius * 2)) {
             double circle_radius = Math.sin(i) * sphere_radius*2;
             double y = Math.cos(i) * sphere_radius*2;
             for (double a = 0; a < Math.PI*2; a+= Math.PI / (Math.PI * circle_radius * 2)) {
@@ -193,13 +197,14 @@ public class LuckyEventListener implements Listener {
                 if(to_set.getBlock().getType() == Material.AIR) {
 
                     to_set.getBlock().setType(Material.ICE);
+                    to_set.getBlock().setMetadata("spawned_block", new FixedMetadataValue(plugin, "yes"));
                     new BukkitRunnable() {
                         public void run() {
                             to_set.getBlock().setType(Material.AIR);
-                            to_set.getWorld().playSound(to_set,Sound.BLOCK_BEEHIVE_DRIP, 10, 1f);
+                            to_set.getWorld().playSound(to_set,Sound.BLOCK_BEEHIVE_DRIP, 1, 1f);
                         }
                     }
-                    .runTaskLater(plugin, 400+(incr*2));
+                    .runTaskLater(plugin, 800-(incr*2));
                     incr++;
                 }
             }

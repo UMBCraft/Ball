@@ -1,5 +1,6 @@
-package online.umbcraft.balls;
+package online.umbcraft.balls.listener;
 
+import online.umbcraft.balls.Balls;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;

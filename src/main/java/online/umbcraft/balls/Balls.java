@@ -1,16 +1,22 @@
 package online.umbcraft.balls;
 
+import online.umbcraft.balls.listener.LuckyEventListener;
+import online.umbcraft.balls.listener.PlayerEventListener;
+import online.umbcraft.balls.listener.WandEventListener;
+import online.umbcraft.balls.scoreboard.ScoreManager;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
 public final class Balls extends JavaPlugin {
 
+    private ScoreManager scores;
+
     @Override
     public void onEnable() {
 
+        scores = new ScoreManager(10,0);
         File configFile = new File(this.getDataFolder(), "config.yml");
         if (!configFile.exists())
             this.saveDefaultConfig();
@@ -25,6 +31,10 @@ public final class Balls extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(special_listener, this);
 
         this.getCommand("balls").setExecutor(new BallsCommands(this));
+    }
+
+    public ScoreManager getScores() {
+        return scores;
     }
 
     @Override
