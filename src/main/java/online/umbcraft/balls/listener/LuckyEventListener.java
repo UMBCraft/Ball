@@ -71,7 +71,7 @@ public class LuckyEventListener implements Listener {
             //remove durability from gun
             ItemStack gun = e.getItem();
             Damageable new_gun_meta = (Damageable) (gun.getItemMeta());
-            int new_damage = new_gun_meta.getDamage() + 15;
+            int new_damage = new_gun_meta.getDamage() + 25;
 
             if (new_damage <= 250) {
                 new_gun_meta.setDamage(new_damage);
@@ -80,10 +80,12 @@ public class LuckyEventListener implements Listener {
                 e.getPlayer().getInventory().remove(gun);
 
             float accuracy = 0.4f;
-            int num_snowballs = 5;
+            int num_snowballs = 6;
+            int speed = 2;
             if(e.getPlayer().isSneaking()) {
                 accuracy = 0.025f;
-                num_snowballs = 3;
+                num_snowballs = 1;
+                speed = 3;
             }
 
             for (int i = 0; i < num_snowballs; i++) {
@@ -93,7 +95,7 @@ public class LuckyEventListener implements Listener {
                         Math.random() * accuracy - (accuracy / 2),
                         Math.random() * accuracy - (accuracy / 2),
                         Math.random() * accuracy - (accuracy / 2)));
-                velocity.multiply(2);
+                velocity.multiply(speed);
                 snowball.setVelocity(velocity);
             }
         }
@@ -179,7 +181,6 @@ public class LuckyEventListener implements Listener {
             return;
 
         Location center = icicle.getLocation().getBlock().getLocation().add(new Vector(0.5,0.5,0.5));
-        //plugin.getServer().broadcastMessage("center is at "+center.toString());
 
         icicle.remove();
         double sphere_radius = 2.5;

@@ -26,7 +26,7 @@ import java.util.*;
 
 public class PlayerEventListener implements Listener {
 
-    private final int SNOW_REGEN_DELAY = 24; //2400
+    private final int SNOW_REGEN_DELAY = 600; //2400
 
     Balls plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
@@ -67,7 +67,7 @@ public class PlayerEventListener implements Listener {
 
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
-            if ((int) (Math.random() * 4) == 1) // RANDOM STUFF!! WOO!!!
+            if ((int) (Math.random() * 64) == 1) // RANDOM STUFF!! WOO!!!
                 LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
 
 
@@ -225,7 +225,7 @@ public class PlayerEventListener implements Listener {
                 ((Player) shooter).playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
                 ((Player) shooter).stopSound(Sound.ENTITY_PLAYER_HURT);
             }
-            e.setDamage(3);
+            e.setDamage(4);
             return;
         }
         e.setDamage(0);

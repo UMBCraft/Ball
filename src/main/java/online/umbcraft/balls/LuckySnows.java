@@ -65,14 +65,16 @@ public class LuckySnows {
         ItemMeta gift_meta = gift.getItemMeta();
         gift_meta.setDisplayName(name);
         gift.setItemMeta(gift_meta);
-        Item spawn = b.getLocation().getWorld().dropItem(b.getLocation().add(0,0.5,0), gift);
+
+        Item spawn = b.getLocation().getWorld().dropItem(b.getLocation().add(0,1,0), gift);
         spawn.setVelocity(new Vector(
-                0.1 * (Math.random() - 0.5),
-                0.5,
-                0.1 * (Math.random() - 0.5)
+                0.2 * (Math.random() - 0.5),
+                0.25,
+                0.2 * (Math.random() - 0.5)
                 )
         );
         spawn.setGlowing(true);
+        spawn.setPickupDelay(0);
     }
 
     public static void giftItem(Player p, Block b, Material type, String name) {
