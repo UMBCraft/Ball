@@ -8,9 +8,12 @@ public class ScoreManager {
 
     private final int TOP_AMOUNT;
     private final int DEFAULT_SCORE;
+
     private HashMap<UUID, ScoreNode> unsorted_scores = new HashMap<>();
     private TreeMap<String, ScoreNode> sorted_scores = new TreeMap<>();
+
     private HashMap<UUID, BallsScoreboard> scoreboards = new HashMap<>();
+
     private UUID[] top_uuids;
     private int[] top_scores;
 

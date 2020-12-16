@@ -2,10 +2,7 @@ package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.Balls;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Snowball;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,20 +14,85 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class LuckyEventListener implements Listener {
 
-    List<UUID> recent_users = new ArrayList<UUID>();
     private static Balls plugin;
+    List<UUID> recent_users = new ArrayList<UUID>();
 
     public LuckyEventListener(Balls p) {
         plugin = p;
     }
 
+    public static void bellBomb(Location loc, ProjectileSource player) {
+
+        Location spawn = loc.add(new Vector(0, 1, 0));
+        PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 5 * 20, 3);
+        for(Entity e: spawn.getWorld().getNearbyEntities(spawn,6,4,6)) {
+            if(e instanceof Player && e != player)
+                slow.apply((LivingEntity)e);
+        }
+
+        spawn.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawn, 25,3,1,3);
+
+        for (int i = 0; i < 128; i++) {
+
+            new BukkitRunnable() {
+                public void run() {
+                    Snowball snowball = (Snowball) spawn.getWorld().spawnEntity(spawn, EntityType.SNOWBALL);
+                    snowball.setVelocity(
+                            new Vector(
+                                    1.5 * (Math.random() - 0.5),
+                                    1.25 * (Math.random()),
+                                    1.5 * (Math.random() - 0.5)
+                            ));
+                    snowball.setShooter(player);
+                }
+            }.runTaskLater(plugin, i);
+        }
+    }
+
+    public static void placeIcicleSphere(Item icicle) {
+        if (icicle.isDead())
+            return;
+
+        Location center = icicle.getLocation().getBlock().getLocation().add(new Vector(0.5, 0.5, 0.5));
+
+        icicle.remove();
+        double sphere_radius = 2.5;
+
+        center.getWorld().playSound(center, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 10, 1f);
+        int incr = 0;
+        for (double i = Math.PI; i >= 0; i -= Math.PI / (Math.PI * sphere_radius * 2)) {
+            double circle_radius = Math.sin(i) * sphere_radius * 2;
+            double y = Math.cos(i) * sphere_radius * 2;
+            for (double a = 0; a < Math.PI * 2; a += Math.PI / (Math.PI * circle_radius * 2)) {
+                double x = Math.cos(a) * circle_radius;
+                double z = Math.sin(a) * circle_radius;
+                Location to_set = center.clone().add(x, y, z);
+
+                if (to_set.getBlock().getType() == Material.AIR) {
+
+                    to_set.getBlock().setType(Material.ICE);
+                    to_set.getBlock().setMetadata("spawned_block", new FixedMetadataValue(plugin, "yes"));
+                    new BukkitRunnable() {
+                        public void run() {
+                            to_set.getBlock().setType(Material.AIR);
+                            to_set.getWorld().playSound(to_set, Sound.BLOCK_BEEHIVE_DRIP, 1, 1f);
+                        }
+                    }
+                            .runTaskLater(plugin, 800 - (incr * 2));
+                    incr++;
+                }
+            }
+        }
+    }
 
     public void addRecentUser(UUID uuid, int tick_amount) {
         recent_users.add(uuid);
@@ -41,6 +103,7 @@ public class LuckyEventListener implements Listener {
         }
                 .runTaskLater(plugin, tick_amount);
     }
+
     @EventHandler(priority = EventPriority.NORMAL)
     public void onUseItem(PlayerInteractEvent e) {
 
@@ -82,7 +145,7 @@ public class LuckyEventListener implements Listener {
             float accuracy = 0.4f;
             int num_snowballs = 6;
             int speed = 2;
-            if(e.getPlayer().isSneaking()) {
+            if (e.getPlayer().isSneaking()) {
                 accuracy = 0.025f;
                 num_snowballs = 1;
                 speed = 3;
@@ -108,7 +171,7 @@ public class LuckyEventListener implements Listener {
             Location l = e.getPlayer().getLocation();
 
             double circle_radius = 4.5;
-            for (double a = 0; a < Math.PI*2; a+= Math.PI / (Math.PI * circle_radius)) {
+            for (double a = 0; a < Math.PI * 2; a += Math.PI / (Math.PI * circle_radius)) {
                 double x = Math.cos(a) * circle_radius;
                 double z = Math.sin(a) * circle_radius;
                 Location to_set = l.clone().add(x, 0, z);
@@ -122,8 +185,8 @@ public class LuckyEventListener implements Listener {
 
             for (Entity ent : entities)
                 if (ent instanceof LivingEntity) {
-                    wither.apply((LivingEntity)ent);
-                    blindness.apply((LivingEntity)ent);
+                    wither.apply((LivingEntity) ent);
+                    blindness.apply((LivingEntity) ent);
                 }
         }
 
@@ -137,19 +200,19 @@ public class LuckyEventListener implements Listener {
             ItemMeta meta = shard.getItemMeta();
 
             List<String> lore = new LinkedList<String>();
-            lore.add(e.getPlayer().getName()+System.currentTimeMillis());
+            lore.add(e.getPlayer().getName() + System.currentTimeMillis());
             meta.setLore(lore);
 
             shard.setItemMeta(meta);
 
             Item shard_item = e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation()
-                    .add(new Vector(0,1.5,0)), shard);
+                    .add(new Vector(0, 1.5, 0)), shard);
 
             Snowball temp_snowball = e.getPlayer().launchProjectile(Snowball.class);
             Vector item_velocity = e.getPlayer().getLocation().getDirection();
             temp_snowball.remove();
 
-            shard_item.setVelocity(item_velocity.add(new Vector(0,0.5,0)).multiply(0.75));
+            shard_item.setVelocity(item_velocity.add(new Vector(0, 0.5, 0)).multiply(0.75));
             shard_item.setPickupDelay(10);
 
             shard_item.setThrower(e.getPlayer().getUniqueId());
@@ -158,11 +221,10 @@ public class LuckyEventListener implements Listener {
                     placeIcicleSphere(shard_item);
                 }
             }
-                    .runTaskLater(plugin, 100);
+                    .runTaskLater(plugin, 60);
             return;
 
         }
-
         if (type == Material.SWEET_BERRIES) {
 
             addRecentUser(e.getPlayer().getUniqueId(), 20);
@@ -173,45 +235,41 @@ public class LuckyEventListener implements Listener {
             e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2 * 20, 2));
             return;
         }
-    }
 
+        if (type == Material.BELL) {
+            addRecentUser(e.getPlayer().getUniqueId(), 20);
+            e.setCancelled(true);
+            e.getItem().setAmount(e.getItem().getAmount() - 1);
+            e.getPlayer().sendMessage(ChatColor.GOLD + "You toss the bell, getting ready to run in the opposite direction!");
 
-    public static void placeIcicleSphere(Item icicle) {
-        if(icicle.isDead())
-            return;
+            ItemStack bell = new ItemStack(Material.BELL);
 
-        Location center = icicle.getLocation().getBlock().getLocation().add(new Vector(0.5,0.5,0.5));
+            ItemMeta meta = bell.getItemMeta();
 
-        icicle.remove();
-        double sphere_radius = 2.5;
+            List<String> lore = new LinkedList<String>();
+            lore.add(e.getPlayer().getName() + System.currentTimeMillis());
+            meta.setLore(lore);
 
-        center.getWorld().playSound(center,Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 10, 1f);
-        int incr = 0;
-        for (double i = Math.PI; i >= 0; i -= Math.PI / (Math.PI * sphere_radius * 2)) {
-            double circle_radius = Math.sin(i) * sphere_radius*2;
-            double y = Math.cos(i) * sphere_radius*2;
-            for (double a = 0; a < Math.PI*2; a+= Math.PI / (Math.PI * circle_radius * 2)) {
-                double x = Math.cos(a) * circle_radius;
-                double z = Math.sin(a) * circle_radius;
-                Location to_set = center.clone().add(x, y, z);
+            bell.setItemMeta(meta);
 
-                if(to_set.getBlock().getType() == Material.AIR) {
+            Item bell_item = e.getPlayer().getWorld().dropItem(e.getPlayer().getLocation()
+                    .add(new Vector(0, 1.5, 0)), bell);
 
-                    to_set.getBlock().setType(Material.ICE);
-                    to_set.getBlock().setMetadata("spawned_block", new FixedMetadataValue(plugin, "yes"));
-                    new BukkitRunnable() {
-                        public void run() {
-                            to_set.getBlock().setType(Material.AIR);
-                            to_set.getWorld().playSound(to_set,Sound.BLOCK_BEEHIVE_DRIP, 1, 1f);
-                        }
-                    }
-                    .runTaskLater(plugin, 800-(incr*2));
-                    incr++;
+            Snowball temp_snowball = e.getPlayer().launchProjectile(Snowball.class);
+            Vector item_velocity = e.getPlayer().getLocation().getDirection();
+            temp_snowball.remove();
+
+            bell_item.setVelocity(item_velocity.add(new Vector(0, 0.4, 0)).multiply(0.95));
+            bell_item.setPickupDelay(10000);
+
+            bell_item.setThrower(e.getPlayer().getUniqueId());
+            new BukkitRunnable() {
+                public void run() {
+                    bellBomb(bell_item.getLocation(), e.getPlayer());
+                    bell_item.remove();
                 }
             }
+                    .runTaskLater(plugin, 50);
         }
-
-
-
     }
 }

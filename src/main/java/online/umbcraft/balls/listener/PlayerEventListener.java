@@ -345,12 +345,12 @@ public class PlayerEventListener implements Listener {
         Player who_died = e.getEntity();
 
         int ded_score = plugin.getScores().getPlayerScore(who_died.getUniqueId());
-        plugin.getScores().setPlayerScore(who_died.getUniqueId(),0);
         Player killer = who_died.getKiller();
 
         if (killer != null && killer instanceof Player) {
             plugin.getScores().adjustPlayerScore(killer.getUniqueId(),25 + ded_score/2);
         }
+        plugin.getScores().setPlayerScore(who_died.getUniqueId(),ded_score/3);
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
