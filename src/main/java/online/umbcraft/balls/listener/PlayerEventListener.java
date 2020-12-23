@@ -63,11 +63,11 @@ public class PlayerEventListener implements Listener {
                     recent_collectors.remove(e.getPlayer().getUniqueId());
                 }
             }
-                    .runTaskLater(plugin, 4);
+                    .runTaskLater(plugin, 3);
 
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
-            if ((int) (Math.random() * 64) == 1) // RANDOM STUFF!! WOO!!!
+            if ((int) (Math.random() * 48) == 1) // RANDOM STUFF!! WOO!!!
                 LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
 
 
@@ -152,20 +152,20 @@ public class PlayerEventListener implements Listener {
 
     private void applyPlayerArmor(PlayerInventory p, Color c) {
 
-        ItemStack helm = new ItemStack(Material.LEATHER_HELMET);
+        //ItemStack helm = new ItemStack(Material.LEATHER_HELMET);
         ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE);
         ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
-        LeatherArmorMeta meta = (LeatherArmorMeta) helm.getItemMeta();
+        LeatherArmorMeta meta = (LeatherArmorMeta) chest.getItemMeta();
         meta.setDisplayName(ChatColor.GRAY+"Snow Suit");
         meta.setColor(c);
 
-        helm.setItemMeta(meta);
+        //helm.setItemMeta(meta);
         chest.setItemMeta(meta);
         legs.setItemMeta(meta);
         boots.setItemMeta(meta);
 
-        p.setHelmet(helm);
+        //rp.setHelmet(helm);
         p.setChestplate(chest);
         p.setLeggings(legs);
         p.setBoots(boots);

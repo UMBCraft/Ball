@@ -49,7 +49,7 @@ public class LuckyEventListener implements Listener {
                     snowball.setVelocity(
                             new Vector(
                                     1.5 * (Math.random() - 0.5),
-                                    1.25 * (Math.random()),
+                                    1.1 * (Math.random()),
                                     1.5 * (Math.random() - 0.5)
                             ));
                     snowball.setShooter(player);
@@ -240,7 +240,7 @@ public class LuckyEventListener implements Listener {
             addRecentUser(e.getPlayer().getUniqueId(), 20);
             e.setCancelled(true);
             e.getItem().setAmount(e.getItem().getAmount() - 1);
-            e.getPlayer().sendMessage(ChatColor.GOLD + "You toss the bell, getting ready to run in the opposite direction!");
+            e.getPlayer().sendMessage(ChatColor.GOLD + "You ring the bell, and it leaps out of your hands!");
 
             ItemStack bell = new ItemStack(Material.BELL);
 
@@ -263,6 +263,10 @@ public class LuckyEventListener implements Listener {
             bell_item.setPickupDelay(10000);
 
             bell_item.setThrower(e.getPlayer().getUniqueId());
+
+            Location sound_loc = e.getPlayer().getLocation();
+            sound_loc.getWorld().playSound(sound_loc, Sound.BLOCK_BELL_USE, 20, 1);
+
             new BukkitRunnable() {
                 public void run() {
                     bellBomb(bell_item.getLocation(), e.getPlayer());

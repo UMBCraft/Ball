@@ -1,7 +1,9 @@
 package online.umbcraft.balls;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -15,7 +17,7 @@ public class LuckySnows {
 
     public static void drawItem(Player p, Block b) {
 
-
+        p.playSound(p.getLocation(), Sound.ENTITY_MULE_CHEST, 1, 1);
         int result = (int) (Math.random() * 5);
         switch (result) {
             case (0):
@@ -71,7 +73,11 @@ public class LuckySnows {
         gift_meta.setDisplayName(name);
         gift.setItemMeta(gift_meta);
 
-        Item spawn = b.getLocation().getWorld().dropItem(b.getLocation().add(0, 1, 0), gift);
+        Location to_spawn = b.getLocation().clone().add(0,1,0);
+        while(to_spawn.getBlock().getType() != Material.AIR)
+            to_spawn = to_spawn.add(0,1,0);
+
+        Item spawn = b.getLocation().getWorld().dropItem(to_spawn, gift);
         spawn.setVelocity(new Vector(
                         0.2 * (Math.random() - 0.5),
                         0.25,
