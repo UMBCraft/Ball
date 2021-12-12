@@ -344,10 +344,12 @@ public class PlayerEventListener implements Listener {
 
         Player who_died = e.getEntity();
 
+
         int ded_score = plugin.getScores().getPlayerScore(who_died.getUniqueId());
         Player killer = who_died.getKiller();
 
         if (killer != null && killer instanceof Player) {
+            e.setDeathMessage(ChatColor.RED+who_died.getDisplayName()+" took "+killer.getDisplayName()+"'s balls to the face!");
             plugin.getScores().adjustPlayerScore(killer.getUniqueId(),25 + ded_score/2);
         }
         plugin.getScores().setPlayerScore(who_died.getUniqueId(),ded_score/3);
