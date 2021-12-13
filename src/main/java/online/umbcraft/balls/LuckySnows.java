@@ -11,30 +11,29 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiConsumer;
+
 public class LuckySnows {
 
+    final static private List<BiConsumer<Player,Block>> deck;
 
-    public static void drawItem(Player p, Block b) {
+    static {
+        deck = new ArrayList<>();
+        deck.add(LuckySnows::drawCoal);
+        deck.add(LuckySnows::drawIcicle);
+        deck.add(LuckySnows::drawBell);
+        deck.add(LuckySnows::drawBerry);
+        deck.add(LuckySnows::drawGun);
+    }
 
+
+    public static void drawRandomItem(Player p, Block b) {
         p.playSound(p.getLocation(), Sound.ENTITY_MULE_CHEST, 1, 1);
-        int result = (int) (Math.random() * 5);
-        switch (result) {
-            case (0):
-                drawCoal(p, b);
-                break;
-            case (1):
-                drawBerry(p, b);
-                break;
-            case (2):
-                drawGun(p, b);
-                break;
-            case (3):
-                drawIcicle(p, b);
-                break;
-            case (4):
-                drawBell(p, b);
-                break;
-        }
+        deck.get((int)(Math.random() * deck.size())).accept(p,b);
+
     }
 
     public static void drawCoal(Player p, Block b) {

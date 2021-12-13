@@ -2,7 +2,6 @@ package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.Balls;
 import online.umbcraft.balls.LuckySnows;
-import online.umbcraft.balls.listener.LuckyEventListener;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
@@ -68,7 +67,7 @@ public class PlayerEventListener implements Listener {
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
             if ((int) (Math.random() * 48) == 1) // RANDOM STUFF!! WOO!!!
-                LuckySnows.drawItem(e.getPlayer(), e.getClickedBlock());
+                LuckySnows.drawRandomItem(e.getPlayer(), e.getClickedBlock());
 
 
             Block block = e.getClickedBlock();
@@ -348,7 +347,7 @@ public class PlayerEventListener implements Listener {
         int ded_score = plugin.getScores().getPlayerScore(who_died.getUniqueId());
         Player killer = who_died.getKiller();
 
-        if (killer != null && killer instanceof Player) {
+        if (killer != null) {
             e.setDeathMessage(ChatColor.RED+who_died.getDisplayName()+" took "+killer.getDisplayName()+"'s balls to the face!");
             plugin.getScores().adjustPlayerScore(killer.getUniqueId(),25 + ded_score/2);
         }
