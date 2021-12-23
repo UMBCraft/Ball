@@ -20,7 +20,8 @@ public class HelmetPerk extends PerkImplementation {
         helm.setItemMeta(meta);
         p.getInventory().setHelmet(helm);
 
-        p.sendMessage(ChatColor.GREEN + this.getClass().getSimpleName());
+        String message = "You find a rusty helmet in the dirt. (+armor)";
+        p.sendMessage(ChatColor.GREEN + message);
     }
 
     @Override

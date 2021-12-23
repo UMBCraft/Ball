@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 public class MeleePerk extends PerkImplementation {
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "You realize fists speak as loudly as snowballs. (+melee)";
+        p.sendMessage(ChatColor.GREEN + message);
     }
 }

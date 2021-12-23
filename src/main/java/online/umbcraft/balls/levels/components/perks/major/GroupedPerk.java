@@ -9,6 +9,8 @@ public class GroupedPerk extends PerkImplementation {
 
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+
+        String message = "You feel bold... you want more enemies!! (+def * enemies)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 }

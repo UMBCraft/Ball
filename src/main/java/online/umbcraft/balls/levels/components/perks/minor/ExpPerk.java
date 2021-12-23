@@ -9,6 +9,7 @@ public class ExpPerk extends PerkImplementation {
 
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "You feel an eagerness to grow. (+exp rate)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 }

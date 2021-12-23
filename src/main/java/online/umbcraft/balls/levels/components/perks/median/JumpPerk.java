@@ -14,8 +14,8 @@ public class JumpPerk extends PerkImplementation {
         p.addPotionEffect(
                 new PotionEffect(PotionEffectType.JUMP, 20 * 200000, 0));
 
-
-        p.sendMessage(ChatColor.GREEN + this.getClass().getSimpleName());
+        String message = "Your legs swell and pop. (+jump height)";
+        p.sendMessage(ChatColor.GREEN + message);
 
     }
 

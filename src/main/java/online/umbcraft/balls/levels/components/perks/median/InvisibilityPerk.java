@@ -14,7 +14,8 @@ public class InvisibilityPerk extends PerkImplementation {
         p.addPotionEffect(
                 new PotionEffect(PotionEffectType.INVISIBILITY, 20 * 200000, 0));
 
-        p.sendMessage(ChatColor.GREEN + this.getClass().getSimpleName());
+        String message = "Your body grows cold as you blend in with the snow. (+invisibility)";
+        p.sendMessage(ChatColor.GREEN + message);
 
     }
 

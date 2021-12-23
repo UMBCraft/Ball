@@ -20,8 +20,8 @@ public class ArmorPerk extends PerkImplementation {
         chestplate.setItemMeta(meta);
         p.getInventory().setChestplate(chestplate);
 
-
-        p.sendMessage(ChatColor.GREEN + this.getClass().getSimpleName());
+        String message = "A piece of scale mail finds its way to you. (+armor)";
+        p.sendMessage(ChatColor.GREEN + message);
     }
 
     @Override

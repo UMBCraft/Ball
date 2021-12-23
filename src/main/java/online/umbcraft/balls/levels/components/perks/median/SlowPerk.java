@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 public class SlowPerk extends PerkImplementation {
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+
+        String message = "You feel an urge to rip and gouge throats. (+slow on punch)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 }

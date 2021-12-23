@@ -11,7 +11,8 @@ public class HealthPerk extends PerkImplementation {
     @Override
     public void apply(Player p, JingleBall plugin) {
         p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(22);
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "Your heart swells. You've never felt so alive. (+hp)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 public class DamagePerk extends PerkImplementation {
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "Your arms feel stronger... time to chunk a snowball. (+damage to snowballs)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 }

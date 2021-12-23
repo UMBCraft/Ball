@@ -9,6 +9,7 @@ public class SoundsPerk extends PerkImplementation {
 
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "The sounds of the forest echo through you. (+sounds)";
+        p.sendMessage(ChatColor.GREEN + message);
     }
 }

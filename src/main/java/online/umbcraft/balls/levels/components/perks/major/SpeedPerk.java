@@ -14,7 +14,8 @@ public class SpeedPerk extends PerkImplementation {
         p.addPotionEffect(
                 new PotionEffect(PotionEffectType.SPEED, 20 * 200000, 0));
 
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+        String message = "Your body feels light... (+speed)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 
     public void revoke(Player p, JingleBall plugin) {

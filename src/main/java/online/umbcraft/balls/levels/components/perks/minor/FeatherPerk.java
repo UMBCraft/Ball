@@ -9,6 +9,8 @@ public class FeatherPerk extends PerkImplementation {
 
     @Override
     public void apply(Player p, JingleBall plugin) {
-        p.sendMessage(ChatColor.GREEN+this.getClass().getSimpleName());
+
+        String message = "You find yourself floating as you fall. (-fall dmg)";
+        p.sendMessage(ChatColor.GREEN+message);
     }
 }
