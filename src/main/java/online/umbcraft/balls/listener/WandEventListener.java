@@ -21,7 +21,7 @@ public class WandEventListener implements Listener {
     public void onUseWand(PlayerInteractEvent e) {
         if(e.getItem() == null ||
                 e.getItem().getItemMeta() == null ||
-                !e.getItem().getItemMeta().getDisplayName().equals(ChatColor.LIGHT_PURPLE+"Magic Wand"))
+                !e.getItem().getItemMeta().getDisplayName().equals(ChatColor.LIGHT_PURPLE+"Jingle Wand"))
             return;
         e.setCancelled(true);
         Location l = e.getClickedBlock().getLocation();

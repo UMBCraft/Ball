@@ -1,5 +1,7 @@
-package online.umbcraft.balls;
+package online.umbcraft.balls.listener;
 
+import online.umbcraft.balls.JingleBall;
+import online.umbcraft.balls.enums.JinglePerm;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -18,8 +20,10 @@ import java.util.List;
 
 public class BallsCommands implements CommandExecutor, TabCompleter {
 
-    public BallsCommands(Plugin p) {
+    final private JingleBall plugin;
 
+    public BallsCommands(JingleBall plugin) {
+        this.plugin = plugin;
     }
 
     @Override
@@ -33,8 +37,8 @@ public class BallsCommands implements CommandExecutor, TabCompleter {
             return true;
         }
         if(args[0].equalsIgnoreCase("wand")) {
-            if(!sender.hasPermission("balls.wand")) {
-                sender.sendMessage(ChatColor.RED + "You're not magical enough to get a wand!");
+            if(!sender.hasPermission(JinglePerm.WAND.path)) {
+                sender.sendMessage(ChatColor.RED + "You're not magical enough to get a wand! (need "+JinglePerm.WAND+")");
                 return false;
             }
             if(sender.getName().contentEquals("CONSOLE")) {
@@ -43,7 +47,7 @@ public class BallsCommands implements CommandExecutor, TabCompleter {
             }
             ItemStack wand = new ItemStack(Material.BAMBOO,1);
             ItemMeta meta = wand.getItemMeta();
-            meta.setDisplayName(ChatColor.LIGHT_PURPLE+"Magic Wand");
+            meta.setDisplayName(ChatColor.LIGHT_PURPLE+"Jingle Wand");
             wand.setItemMeta(meta);
             ((Player) sender).getInventory().addItem(wand);
             return true;
@@ -57,7 +61,7 @@ public class BallsCommands implements CommandExecutor, TabCompleter {
         List<String> commands = new ArrayList<>();
 
         if (args.length == 1) {
-            if (sender.hasPermission("balls.wand")) {
+            if (sender.hasPermission(JinglePerm.WAND.path)) {
                 commands.add("wand");
             }
             StringUtil.copyPartialMatches(args[0], commands, completions);

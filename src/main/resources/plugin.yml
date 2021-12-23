@@ -7,5 +7,5 @@ authors: [Ivan8or]
 description: Christmas PvP Game
 website: umbcraft.online
 commands:
-  balls:
+  jingle:
     description: used for all JingleBalls related commands

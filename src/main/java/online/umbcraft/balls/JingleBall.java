@@ -1,5 +1,6 @@
 package online.umbcraft.balls;
 
+import online.umbcraft.balls.listener.BallsCommands;
 import online.umbcraft.balls.listener.LuckyEventListener;
 import online.umbcraft.balls.listener.PlayerEventListener;
 import online.umbcraft.balls.listener.WandEventListener;
@@ -30,7 +31,7 @@ public final class JingleBall extends JavaPlugin {
         LuckyEventListener special_listener = new LuckyEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(special_listener, this);
 
-        this.getCommand("balls").setExecutor(new BallsCommands(this));
+        this.getCommand("jingle").setExecutor(new BallsCommands(this));
     }
 
     public ScoreManager getScores() {
