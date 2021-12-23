@@ -21,9 +21,16 @@ public class TournamentManager {
         return false;
     }
 
+    public double getActiveMultiplier() {
+        if(activeTournament == null)
+            return 1;
+        return activeTournament.getMultiplier();
+    }
+
     public TimedBossBar[] getBars() {
         return activeTournament.getBossBars();
     }
+
     public void startTournament() {
         if(activeTournament != null && activeTournament.isActive())
             return;

@@ -18,7 +18,7 @@ public class Tournament {
     final private long TOURNEY_DURATION = 36000/* 00 */;
 
     final private TimedBossBar tournamentBar;
-    private int multiplier;
+    private double multiplier;
     private TimedBossBar multiplierBar;
     private boolean isActive;
 
@@ -29,8 +29,7 @@ public class Tournament {
         BossBar plainBar = plugin.getServer().createBossBar(
                 name,
                 BarColor.GREEN,
-                BarStyle.SOLID,
-                new BarFlag[]{}
+                BarStyle.SOLID
         );
 
         tournamentBar = new TimedBossBar(plugin, plainBar, name, TOURNEY_DURATION);
@@ -42,16 +41,18 @@ public class Tournament {
             tournamentBar.addPlayer(p);
 
 
+
+
+        // 5 minute 2x multi, 45 minutes away from the finish
         plugin.getExecutor().schedule(
                 () -> {
                     String multTitle = "2x Point Multiplier";
                     BossBar plainMultBar = plugin.getServer().createBossBar(
                             multTitle,
                             BarColor.RED,
-                            BarStyle.SOLID,
-                            new BarFlag[]{}
+                            BarStyle.SOLID
                     );
-                    multiplierBar = new TimedBossBar(plugin, plainMultBar, multTitle, 6000/* 00 */);
+                    multiplierBar = new TimedBossBar(plugin, plainMultBar, multTitle, 3000/* 00 */);
                     multiplier = 2;
                     multiplierBar.onFinish(() -> {
                         multiplierBar.getBar().removeAll();
@@ -60,8 +61,57 @@ public class Tournament {
                     for (Player p : plugin.getServer().getOnlinePlayers())
                         multiplierBar.addPlayer(p);
 
-                    // run 15 minutes from completion
-                }, TOURNEY_DURATION - 9000/* 00 */, TimeUnit.MILLISECONDS);
+                    // run 45 minutes from completion
+                }, TOURNEY_DURATION - 27000/* 00 */, TimeUnit.MILLISECONDS);
+
+
+
+        // 5 minute 2x multi, 25 minutes away from the finish
+        plugin.getExecutor().schedule(
+                () -> {
+                    String multTitle = "2x Point Multiplier";
+                    BossBar plainMultBar = plugin.getServer().createBossBar(
+                            multTitle,
+                            BarColor.RED,
+                            BarStyle.SOLID
+                    );
+                    multiplierBar = new TimedBossBar(plugin, plainMultBar, multTitle, 3000/* 00 */);
+                    multiplier = 2;
+                    multiplierBar.onFinish(() -> {
+                        multiplierBar.getBar().removeAll();
+                        multiplier = 1;
+                    });
+                    for (Player p : plugin.getServer().getOnlinePlayers())
+                        multiplierBar.addPlayer(p);
+
+                    // run 25 minutes from completion
+                }, TOURNEY_DURATION - 15000/* 00 */, TimeUnit.MILLISECONDS);
+
+
+        // 5 minute 2.5x multi, 5 minutes away from the finish
+        plugin.getExecutor().schedule(
+                () -> {
+                    String multTitle = "2.5x Point Multiplier";
+                    BossBar plainMultBar = plugin.getServer().createBossBar(
+                            multTitle,
+                            BarColor.YELLOW,
+                            BarStyle.SOLID
+                    );
+                    multiplierBar = new TimedBossBar(plugin, plainMultBar, multTitle, 3000/* 00 */);
+                    multiplier = 2.5;
+                    multiplierBar.onFinish(() -> {
+                        multiplierBar.getBar().removeAll();
+                        multiplier = 1;
+                    });
+                    for (Player p : plugin.getServer().getOnlinePlayers())
+                        multiplierBar.addPlayer(p);
+
+                    // run 12 minutes from completion
+                }, TOURNEY_DURATION - 3000/* 00 */, TimeUnit.MILLISECONDS);
+    }
+
+    public double getMultiplier() {
+        return multiplier;
     }
 
     public boolean isActive() {

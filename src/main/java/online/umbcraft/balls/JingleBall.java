@@ -90,7 +90,6 @@ public final class JingleBall extends JavaPlugin {
         this.getCommand("jingle").setExecutor(new JingleCommands(this));
     }
 
-
     @Override
     public void onDisable() {
         // Plugin shutdown logic

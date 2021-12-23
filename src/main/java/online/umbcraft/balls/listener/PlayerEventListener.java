@@ -364,7 +364,9 @@ public class PlayerEventListener implements Listener {
         int deadsScore = plugin.getScoreManager().getPlayerScore(whoDied.getUniqueId());
         Player killer = whoDied.getKiller();
 
-        int lostPoints = (int)(deadsScore* ON_DEATH_LOSE);
+        double multiplier = plugin.getTournamentManager().getActiveMultiplier();
+
+        int lostPoints = (int)(deadsScore*ON_DEATH_LOSE);
         plugin.getScoreManager().setPlayerScore(whoDied.getUniqueId(),lostPoints);
 
         // allow the player to get a custom death message if they kill themselves
@@ -376,7 +378,7 @@ public class PlayerEventListener implements Listener {
         // do something different if the player died to nobody or to themselves
         if (killer != null && !killer.getUniqueId().equals(whoDied.getUniqueId())) {
 
-            int gainedPoints = ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN);
+            int gainedPoints = (int)(multiplier* (ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN)));
             plugin.getScoreManager().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
             killer.sendMessage(ChatColor.GREEN+"You gained "+gainedPoints+" points for killing "+whoDied.getName());
             whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
