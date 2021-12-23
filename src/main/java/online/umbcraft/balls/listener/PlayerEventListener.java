@@ -227,6 +227,9 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onLeave(PlayerQuitEvent e) {
         plugin.getScores().removePlayer(e.getPlayer().getUniqueId());
+        plugin.getSpectators().remove(e.getPlayer().getUniqueId());
+        plugin.getAttemptedSpectators().remove(e.getPlayer().getUniqueId());
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -357,6 +360,9 @@ public class PlayerEventListener implements Listener {
             i.getType().name().contains("LEATHER"))
                 i.setType(Material.AIR);
         }
+        e.setDroppedExp(0);
+        e.setNewExp(0);
+        e.setNewLevel(0);
 
         Player whoDied = e.getEntity();
         int deadsScore = plugin.getScores().getPlayerScore(whoDied.getUniqueId());

@@ -42,8 +42,9 @@ public class ScoreManager {
         scoreboards.put(uuid, new BallsScoreboard(uuid));
         p.setScoreboard(scoreboards.get(uuid).board);
 
-        if (unsorted_scores.containsKey(uuid))
-            return;
+        // for if we want players to retain their score (?)
+        //if (unsorted_scores.containsKey(uuid))
+        //    return;
 
         ScoreNode new_node = new ScoreNode(uuid, name, DEFAULT_SCORE);
 
@@ -51,6 +52,15 @@ public class ScoreManager {
         sorted_scores.put(createKey(uuid, new_node), new_node);
         giveBoardsTop(uuid);
         updateBoardsTop();
+    }
+
+    //allow a player to see the scoreboard without participating in it
+    public synchronized void showScoreboard(Player player) {
+        UUID uuid = player.getUniqueId();
+        String name = player.getName();
+        scoreboards.put(uuid, new BallsScoreboard(uuid));
+        player.setScoreboard(scoreboards.get(uuid).board);
+        giveBoardsTop(uuid);
     }
 
     public synchronized void removePlayer(UUID uuid) {
@@ -70,11 +80,9 @@ public class ScoreManager {
             ScoreNode sn = sorted_scores.get(s);
 
             if (sn != null) {
-                System.out.println("rank "+rank+" is not null");
                 if (top_uuids[rank - 1] == null
                         || !top_uuids[rank - 1].equals(sn.getUUID())
                         || top_scores[rank - 1] != (sn.getScore())) {
-                    System.out.println("updating scoreboard - rank "+rank+" is now "+sn.getName()+" with score "+sn.getScore());
                     for (BallsScoreboard scb : scoreboards.values()) {
                         scb.setTopRanked(sn.getName(), rank, sn.getScore());
                     }
@@ -82,10 +90,8 @@ public class ScoreManager {
                     top_scores[rank-1] = sn.getScore();
                 }
             } else {
-                System.out.println("rank "+rank+" IS null");
                 if (top_uuids[rank - 1] != null) {
 
-                    System.out.println("updating scoreboard - rank "+rank+" is now null");
                     for (BallsScoreboard scb : scoreboards.values())
                         scb.setTopRanked(null, rank, -1);
                     top_uuids[rank-1] = null;
@@ -97,7 +103,6 @@ public class ScoreManager {
         while(rank < TOP_COUNT) {
             if (top_uuids[rank - 1] != null) {
 
-                System.out.println("updating scoreboard - rank "+rank+" is now null");
                 for (BallsScoreboard scb : scoreboards.values())
                     scb.setTopRanked(null, rank, -1);
                 top_uuids[rank-1] = null;

@@ -32,28 +32,28 @@ public class LuckyEventListener implements Listener {
     public static void bellBomb(Location loc, ProjectileSource player) {
 
         Location spawn = loc.add(new Vector(0, 1, 0));
-        PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 5 * 20, 3);
-        for(Entity e: spawn.getWorld().getNearbyEntities(spawn,6,4,6)) {
-            if(e instanceof Player && e != player)
-                slow.apply((LivingEntity)e);
+        PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 5 * 20, 4);
+        for (Entity e : spawn.getWorld().getNearbyEntities(spawn, 9, 4, 9)) {
+            if (e instanceof Player && e != player && !plugin.getSpectators().contains(e.getUniqueId()))
+                slow.apply((LivingEntity) e);
         }
 
-        spawn.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawn, 25,3,1,3);
+        spawn.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawn, 25, 3, 1, 3);
 
-        for (int i = 0; i < 128; i++) {
-
-            new BukkitRunnable() {
-                public void run() {
-                    Snowball snowball = (Snowball) spawn.getWorld().spawnEntity(spawn, EntityType.SNOWBALL);
-                    snowball.setVelocity(
-                            new Vector(
-                                    1.5 * (Math.random() - 0.5),
-                                    1.1 * (Math.random()),
-                                    1.5 * (Math.random() - 0.5)
-                            ));
-                    snowball.setShooter(player);
-                }
-            }.runTaskLater(plugin, i);
+        for (int i = 0; i < 64; i++) {
+            for(int count = 0; count < 3; count++) {
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                        plugin, () -> {
+                            Snowball snowball = (Snowball) spawn.getWorld().spawnEntity(spawn, EntityType.SNOWBALL);
+                            snowball.setVelocity(
+                                    new Vector(
+                                            1.5 * (Math.random() - 0.5),
+                                            1.1 * (Math.random() - 0.1),
+                                            1.5 * (Math.random() - 0.5)
+                                    ));
+                            snowball.setShooter(player);
+                        }, i);
+            }
         }
     }
 
@@ -179,11 +179,12 @@ public class LuckyEventListener implements Listener {
 
             Collection<Entity> entities = l.getWorld().getNearbyEntities(l, 5, 5, 5);
             entities.remove(e.getPlayer());
+
             PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 4 * 20, 2);
             PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 8 * 20, 1);
 
             for (Entity ent : entities)
-                if (ent instanceof LivingEntity) {
+                if (ent instanceof LivingEntity && !plugin.getSpectators().contains(ent.getUniqueId())) {
                     wither.apply((LivingEntity) ent);
                     blindness.apply((LivingEntity) ent);
                 }
@@ -245,7 +246,7 @@ public class LuckyEventListener implements Listener {
 
             ItemMeta meta = bell.getItemMeta();
 
-            List<String> lore = new LinkedList<String>();
+            List<String> lore = new LinkedList<>();
             lore.add(e.getPlayer().getName() + System.currentTimeMillis());
             meta.setLore(lore);
 
@@ -272,7 +273,7 @@ public class LuckyEventListener implements Listener {
                     bell_item.remove();
                 }
             }
-                    .runTaskLater(plugin, 50);
+                    .runTaskLater(plugin, 40);
         }
     }
 }

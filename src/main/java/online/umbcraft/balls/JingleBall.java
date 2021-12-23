@@ -17,14 +17,20 @@ public final class JingleBall extends JavaPlugin {
 
     final private ScoreManager scores;
     final private Set<UUID> spectators;
+    final private Set<UUID> attemptedSpectators;
 
     public JingleBall() {
         super();
         spectators = new HashSet<>();
+        attemptedSpectators = new HashSet<>();
         scores = new ScoreManager(10,0);
     }
 
     public Set<UUID> getSpectators() {
+        return spectators;
+    }
+
+    public Set<UUID> getAttemptedSpectators() {
         return spectators;
     }
 
