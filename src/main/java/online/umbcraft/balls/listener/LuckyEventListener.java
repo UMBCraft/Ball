@@ -23,7 +23,7 @@ import java.util.*;
 public class LuckyEventListener implements Listener {
 
     private static JingleBall plugin;
-    List<UUID> recent_users = new ArrayList<UUID>();
+    List<UUID> recent_users = new ArrayList<>();
 
     public LuckyEventListener(JingleBall p) {
         plugin = p;
