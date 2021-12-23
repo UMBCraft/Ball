@@ -37,6 +37,12 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
         if(args[0].equalsIgnoreCase("spectate")) {
             return onSpecateCommand(sender);
         }
+        if(args[0].equalsIgnoreCase("tournament")) {
+            if(args.length != 2) {
+                return onEmptyCommand(sender);
+            }
+            return onTournamentCommand(sender, args[1]);
+        }
         if(args[0].equalsIgnoreCase("exp")) {
             if(args.length != 3) {
                 return onEmptyCommand(sender);
@@ -44,6 +50,24 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
             return onExpCommand(sender, args[1], Integer.parseInt(args[2]));
         }
         return false;
+    }
+
+    public boolean onTournamentCommand(CommandSender sender, String option) {
+        if(!sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
+            sender.sendMessage(ChatColor.RED + "You're not magical enough to start a tournament! (need "+JinglePerm.TOURNAMENT+")");
+            return false;
+        }
+
+        if(option.equalsIgnoreCase("start")) {
+            sender.sendMessage(ChatColor.GOLD + "Started tournament!");
+            plugin.getTournamentManager().startTournament();
+        }
+        else if (option.equalsIgnoreCase("clear")) {
+            sender.sendMessage(ChatColor.GOLD + "Clearing tournament!");
+            plugin.getTournamentManager().clearTournament();
+        }
+
+        return true;
     }
 
     public boolean onExpCommand(CommandSender sender, String player, int amount) {
@@ -79,7 +103,7 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 plugin.getSpectators().remove(uuid);
                 playerSender.setGameMode(GameMode.SURVIVAL);
                 playerSender.setHealth(0);
-                plugin.getScores().addPlayer(playerSender);
+                plugin.getScoreManager().addPlayer(playerSender);
                 sender.sendMessage(ChatColor.GREEN + "You are no longer a spectator! Good luck!");
             }
         }
@@ -103,8 +127,8 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 plugin.getSpectators().add(uuid);
                 playerSender.setGameMode(GameMode.SPECTATOR);
                 plugin.getLevelingManager().setExp(playerSender, 0);
-                plugin.getScores().removePlayer(uuid);
-                plugin.getScores().showScoreboard(playerSender);
+                plugin.getScoreManager().removePlayer(uuid);
+                plugin.getScoreManager().showScoreboard(playerSender);
             }
         }
 
@@ -153,14 +177,25 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission(JinglePerm.EXP.path)) {
                 commands.add("exp");
             }
+            if (sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
+                commands.add("tournament");
+            }
             StringUtil.copyPartialMatches(args[0], commands, completions);
         }
         if(args.length == 2 && args[0].equals("exp")) {
             if (sender.hasPermission(JinglePerm.EXP.path)) {
-                for(UUID uuid: plugin.getScores().getPlayingPlayers()) {
+                for(UUID uuid: plugin.getScoreManager().getPlayingPlayers()) {
                     commands.add(plugin.getServer().getPlayer(uuid).getName());
                 }
             }
+            StringUtil.copyPartialMatches(args[1], commands, completions);
+        }
+        if(args.length == 2 && args[0].equals("tournament")) {
+            if (sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
+                commands.add("start");
+                commands.add("clear");
+            }
+            completions.addAll(commands);
             StringUtil.copyPartialMatches(args[1], commands, completions);
         }
         if(args.length == 3 && args[0].equals("exp")) {

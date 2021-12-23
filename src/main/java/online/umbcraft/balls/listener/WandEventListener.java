@@ -23,6 +23,7 @@ public class WandEventListener implements Listener {
                 e.getItem().getItemMeta() == null ||
                 !e.getItem().getItemMeta().getDisplayName().equals(ChatColor.LIGHT_PURPLE+"Jingle Wand"))
             return;
+
         e.setCancelled(true);
         Location l = e.getClickedBlock().getLocation();
         List<String> spawn_coords = plugin.getConfig().getStringList("player-spawns");

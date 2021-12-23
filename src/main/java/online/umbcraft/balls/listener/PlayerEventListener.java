@@ -205,7 +205,7 @@ public class PlayerEventListener implements Listener {
         // add player to scoreboard in 1 second
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(
                 plugin,
-                () -> plugin.getScores().addPlayer(e.getPlayer()),
+                () -> plugin.getScoreManager().addPlayer(e.getPlayer()),
                 20
         );
 
@@ -225,7 +225,7 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onLeave(PlayerQuitEvent e) {
-        plugin.getScores().removePlayer(e.getPlayer().getUniqueId());
+        plugin.getScoreManager().removePlayer(e.getPlayer().getUniqueId());
         plugin.getSpectators().remove(e.getPlayer().getUniqueId());
         plugin.getAttemptedSpectators().remove(e.getPlayer().getUniqueId());
 
@@ -361,11 +361,11 @@ public class PlayerEventListener implements Listener {
         }
 
         Player whoDied = e.getEntity();
-        int deadsScore = plugin.getScores().getPlayerScore(whoDied.getUniqueId());
+        int deadsScore = plugin.getScoreManager().getPlayerScore(whoDied.getUniqueId());
         Player killer = whoDied.getKiller();
 
         int lostPoints = (int)(deadsScore* ON_DEATH_LOSE);
-        plugin.getScores().setPlayerScore(whoDied.getUniqueId(),lostPoints);
+        plugin.getScoreManager().setPlayerScore(whoDied.getUniqueId(),lostPoints);
 
         // allow the player to get a custom death message if they kill themselves
         if(killer != null)
@@ -377,7 +377,7 @@ public class PlayerEventListener implements Listener {
         if (killer != null && !killer.getUniqueId().equals(whoDied.getUniqueId())) {
 
             int gainedPoints = ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN);
-            plugin.getScores().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
+            plugin.getScoreManager().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
             killer.sendMessage(ChatColor.GREEN+"You gained "+gainedPoints+" points for killing "+whoDied.getName());
             whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
         }
