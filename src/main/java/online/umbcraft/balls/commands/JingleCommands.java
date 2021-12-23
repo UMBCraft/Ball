@@ -1,7 +1,6 @@
-package online.umbcraft.balls.listener;
+package online.umbcraft.balls.commands;
 
 import online.umbcraft.balls.JingleBall;
-import online.umbcraft.balls.enums.JinglePerm;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -38,7 +37,26 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
         if(args[0].equalsIgnoreCase("spectate")) {
             return onSpecateCommand(sender);
         }
+        if(args[0].equalsIgnoreCase("exp")) {
+            if(args.length != 3) {
+                return onEmptyCommand(sender);
+            }
+            return onExpCommand(sender, args[1], Integer.parseInt(args[2]));
+        }
         return false;
+    }
+
+    public boolean onExpCommand(CommandSender sender, String player, int amount) {
+        if(!sender.hasPermission(JinglePerm.EXP.path)) {
+            sender.sendMessage(ChatColor.RED + "You're not magical enough to give exp! (need "+JinglePerm.EXP+")");
+            return false;
+        }
+        Player toAdd = plugin.getServer().getPlayer(player);
+        if(toAdd == null || plugin.isSpectator(toAdd.getUniqueId())) {
+            sender.sendMessage(ChatColor.RED + "Invalid player "+player);
+        }
+        plugin.getLevelingManager().addExp(toAdd, amount);
+        return true;
     }
 
     public boolean onSpecateCommand(CommandSender sender) {
@@ -84,6 +102,7 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN+"You are now a spectator. Enjoy the show!");
                 plugin.getSpectators().add(uuid);
                 playerSender.setGameMode(GameMode.SPECTATOR);
+                plugin.getLevelingManager().setExp(playerSender, 0);
                 plugin.getScores().removePlayer(uuid);
                 plugin.getScores().showScoreboard(playerSender);
             }
@@ -128,10 +147,27 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission(JinglePerm.WAND.path)) {
                 commands.add("wand");
             }
-            if (sender.hasPermission(JinglePerm.WAND.path)) {
+            if (sender.hasPermission(JinglePerm.SPECTATOR.path)) {
                 commands.add("spectate");
             }
+            if (sender.hasPermission(JinglePerm.EXP.path)) {
+                commands.add("exp");
+            }
             StringUtil.copyPartialMatches(args[0], commands, completions);
+        }
+        if(args.length == 2 && args[0].equals("exp")) {
+            if (sender.hasPermission(JinglePerm.EXP.path)) {
+                for(UUID uuid: plugin.getScores().getPlayingPlayers()) {
+                    commands.add(plugin.getServer().getPlayer(uuid).getName());
+                }
+            }
+            StringUtil.copyPartialMatches(args[1], commands, completions);
+        }
+        if(args.length == 3 && args[0].equals("exp")) {
+            if (sender.hasPermission(JinglePerm.EXP.path)) {
+                commands.add("<amount>");
+            }
+            completions.addAll(commands);
         }
         Collections.sort(completions);
         return completions;

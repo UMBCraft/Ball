@@ -1,6 +1,8 @@
 package online.umbcraft.balls;
 
-import online.umbcraft.balls.listener.JingleCommands;
+import online.umbcraft.balls.commands.JingleCommands;
+import online.umbcraft.balls.levels.LevelingManager;
+import online.umbcraft.balls.listener.ExpEventListener;
 import online.umbcraft.balls.listener.LuckyEventListener;
 import online.umbcraft.balls.listener.PlayerEventListener;
 import online.umbcraft.balls.listener.WandEventListener;
@@ -12,18 +14,27 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class JingleBall extends JavaPlugin {
 
     final private ScoreManager scores;
+    final private LevelingManager lm;
     final private Set<UUID> spectators;
     final private Set<UUID> attemptedSpectators;
 
     public JingleBall() {
         super();
+
         spectators = new HashSet<>();
         attemptedSpectators = new HashSet<>();
-        scores = new ScoreManager(10,0);
+
+        scores = new ScoreManager(10, 0);
+        lm = new LevelingManager(this);
+    }
+
+    public LevelingManager getLevelingManager() {
+        return lm;
     }
 
     public Set<UUID> getSpectators() {
@@ -31,7 +42,7 @@ public final class JingleBall extends JavaPlugin {
     }
 
     public Set<UUID> getAttemptedSpectators() {
-        return spectators;
+        return attemptedSpectators;
     }
 
     public boolean isSpectator(UUID player) {
@@ -53,6 +64,9 @@ public final class JingleBall extends JavaPlugin {
 
         LuckyEventListener special_listener = new LuckyEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(special_listener, this);
+
+        ExpEventListener exp_listener = new ExpEventListener(this, lm);
+        Bukkit.getServer().getPluginManager().registerEvents(exp_listener, this);
 
         this.getCommand("jingle").setExecutor(new JingleCommands(this));
     }

@@ -1,5 +1,5 @@
 name: JingleBall
-version: ${project.version}
+version: @version@
 main: online.umbcraft.balls.JingleBall
 api-version: 1.16
 prefix: JingleBall

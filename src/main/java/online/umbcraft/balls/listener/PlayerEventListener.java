@@ -1,7 +1,7 @@
 package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.JingleBall;
-import online.umbcraft.balls.LuckySnows;
+import online.umbcraft.balls.items.LuckySnows;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
@@ -18,7 +18,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.*;
@@ -360,9 +359,6 @@ public class PlayerEventListener implements Listener {
             i.getType().name().contains("LEATHER"))
                 i.setType(Material.AIR);
         }
-        e.setDroppedExp(0);
-        e.setNewExp(0);
-        e.setNewLevel(0);
 
         Player whoDied = e.getEntity();
         int deadsScore = plugin.getScores().getPlayerScore(whoDied.getUniqueId());

@@ -1,4 +1,4 @@
-package online.umbcraft.balls.scoreboard;
+package online.umbcraft.balls.scoreboard.components;
 
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;

@@ -1,4 +1,4 @@
-package online.umbcraft.balls.scoreboard;
+package online.umbcraft.balls.scoreboard.components;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -30,6 +30,10 @@ public class IndividualScoreboard {
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
+
+    public Scoreboard getBoard() {
+        return board;
+    }
     public void setTitle(String to_set) {
         objective.setDisplayName(to_set);
     }

@@ -1,5 +1,6 @@
 package online.umbcraft.balls.scoreboard;
 
+import online.umbcraft.balls.scoreboard.components.BallsScoreboard;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -32,6 +33,10 @@ public class ScoreManager {
         top_scores = new int[TOP_COUNT];
     }
 
+    public synchronized Set<UUID> getPlayingPlayers() {
+        return unsorted_scores.keySet();
+    }
+
     public synchronized UUID getTopPlayer() {
         return sorted_scores.firstEntry().getValue().getUUID();
     }
@@ -40,11 +45,11 @@ public class ScoreManager {
         UUID uuid = p.getUniqueId();
         String name = p.getName();
         scoreboards.put(uuid, new BallsScoreboard(uuid));
-        p.setScoreboard(scoreboards.get(uuid).board);
+        p.setScoreboard(scoreboards.get(uuid).getBoard());
 
-        // for if we want players to retain their score (?)
-        //if (unsorted_scores.containsKey(uuid))
-        //    return;
+        // if player already exists dont re-add them
+        if (unsorted_scores.containsKey(uuid))
+            return;
 
         ScoreNode new_node = new ScoreNode(uuid, name, DEFAULT_SCORE);
 
@@ -59,7 +64,7 @@ public class ScoreManager {
         UUID uuid = player.getUniqueId();
         String name = player.getName();
         scoreboards.put(uuid, new BallsScoreboard(uuid));
-        player.setScoreboard(scoreboards.get(uuid).board);
+        player.setScoreboard(scoreboards.get(uuid).getBoard());
         giveBoardsTop(uuid);
     }
 
@@ -68,7 +73,6 @@ public class ScoreManager {
         ScoreNode to_rem = unsorted_scores.remove(uuid);
         sorted_scores.remove(createKey(uuid, to_rem));
         updateBoardsTop();
-        return;
     }
 
     private synchronized void updateBoardsTop() {

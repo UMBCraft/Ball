@@ -1,4 +1,4 @@
-package online.umbcraft.balls;
+package online.umbcraft.balls.items;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

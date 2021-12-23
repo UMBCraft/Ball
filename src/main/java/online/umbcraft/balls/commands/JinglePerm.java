@@ -1,4 +1,4 @@
-package online.umbcraft.balls.enums;
+package online.umbcraft.balls.commands;
 
 public enum JinglePerm {
 
@@ -9,6 +9,8 @@ public enum JinglePerm {
     TOURNAMENT("jingle.tournament"),
 
     SPECTATOR("jingle.spectate"),
+
+    EXP("jingle.exp"),
 
     ANTITEAM("jingle.antiteam");
 
