@@ -1,20 +1,19 @@
 package online.umbcraft.balls.listener;
 
-import online.umbcraft.balls.Balls;
+import online.umbcraft.balls.JingleBall;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 
 public class WandEventListener implements Listener {
 
-    Balls plugin;
-    public WandEventListener(Balls p) {
+    JingleBall plugin;
+    public WandEventListener(JingleBall p) {
         plugin = p;
     }
 

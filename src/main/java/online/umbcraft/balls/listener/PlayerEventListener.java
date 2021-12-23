@@ -1,6 +1,6 @@
 package online.umbcraft.balls.listener;
 
-import online.umbcraft.balls.Balls;
+import online.umbcraft.balls.JingleBall;
 import online.umbcraft.balls.LuckySnows;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -27,11 +27,11 @@ public class PlayerEventListener implements Listener {
 
     private final int SNOW_REGEN_DELAY = 600; //2400
 
-    Balls plugin;
+    JingleBall plugin;
     List<UUID> recent_collectors = new ArrayList<UUID>();
     List<Location> player_spawns = new ArrayList<Location>();
 
-    public PlayerEventListener(Balls p) {
+    public PlayerEventListener(JingleBall p) {
         this.plugin = p;
         if (p.getConfig() != null
                 && p.getConfig().getList("player-spawns") != null)

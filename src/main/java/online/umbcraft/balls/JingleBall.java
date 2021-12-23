@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
-public final class Balls extends JavaPlugin {
+public final class JingleBall extends JavaPlugin {
 
     private ScoreManager scores;
 

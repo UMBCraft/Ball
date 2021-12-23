@@ -6,31 +6,30 @@ import java.util.*;
 
 public class ScoreManager {
 
-    private final int TOP_AMOUNT;
+    private final int TOP_COUNT;
     private final int DEFAULT_SCORE;
 
     private HashMap<UUID, ScoreNode> unsorted_scores = new HashMap<>();
     private TreeMap<String, ScoreNode> sorted_scores = new TreeMap<>();
-
     private HashMap<UUID, BallsScoreboard> scoreboards = new HashMap<>();
 
     private UUID[] top_uuids;
     private int[] top_scores;
 
     public ScoreManager() {
-        TOP_AMOUNT = 10;
+        TOP_COUNT = 10;
         DEFAULT_SCORE = 0;
 
-        top_uuids = new UUID[TOP_AMOUNT];
-        top_scores = new int[TOP_AMOUNT];
+        top_uuids = new UUID[TOP_COUNT];
+        top_scores = new int[TOP_COUNT];
     }
 
     public ScoreManager(int top_amount, int default_score) {
-        TOP_AMOUNT = top_amount;
+        TOP_COUNT = top_amount;
         DEFAULT_SCORE = default_score;
 
-        top_uuids = new UUID[TOP_AMOUNT];
-        top_scores = new int[TOP_AMOUNT];
+        top_uuids = new UUID[TOP_COUNT];
+        top_scores = new int[TOP_COUNT];
     }
 
     public synchronized UUID getTopPlayer() {
@@ -65,7 +64,7 @@ public class ScoreManager {
     private synchronized void updateBoardsTop() {
         int rank = 1;
         for (String s : sorted_scores.descendingKeySet()) {
-            if (rank >= TOP_AMOUNT)
+            if (rank >= TOP_COUNT)
                 return;
 
             ScoreNode sn = sorted_scores.get(s);
@@ -95,7 +94,7 @@ public class ScoreManager {
             rank++;
         }
 
-        while(rank < TOP_AMOUNT) {
+        while(rank < TOP_COUNT) {
             if (top_uuids[rank - 1] != null) {
 
                 System.out.println("updating scoreboard - rank "+rank+" is now null");
@@ -114,7 +113,7 @@ public class ScoreManager {
 
         int rank = 1;
         for (String s : sorted_scores.descendingKeySet()) {
-            if (rank >= TOP_AMOUNT)
+            if (rank >= TOP_COUNT)
                 return;
             ScoreNode sn = sorted_scores.get(s);
             scb.setTopRanked(sn.getName(), rank, sn.getScore());
@@ -147,7 +146,7 @@ public class ScoreManager {
     }
 
     public synchronized int getTopAmount() {
-        return TOP_AMOUNT;
+        return TOP_COUNT;
     }
 
     public String toString() {

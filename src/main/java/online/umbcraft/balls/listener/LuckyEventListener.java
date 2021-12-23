@@ -1,6 +1,6 @@
 package online.umbcraft.balls.listener;
 
-import online.umbcraft.balls.Balls;
+import online.umbcraft.balls.JingleBall;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -19,14 +19,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class LuckyEventListener implements Listener {
 
-    private static Balls plugin;
+    private static JingleBall plugin;
     List<UUID> recent_users = new ArrayList<UUID>();
 
-    public LuckyEventListener(Balls p) {
+    public LuckyEventListener(JingleBall p) {
         plugin = p;
     }
 
