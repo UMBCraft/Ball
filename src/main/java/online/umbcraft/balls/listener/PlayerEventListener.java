@@ -26,10 +26,17 @@ import java.util.*;
 public class PlayerEventListener implements Listener {
 
     private final int SNOW_REGEN_DELAY = 600; //2400
+    private final int SNOW_COLLECT_TIMEOUT = 3;
+    private final int LUCKY_CHANCE = 48;
+
+
+    private final double ON_DEATH_LOSE = 0.2;
+    private final double ON_KILL_WIN = 0.1;
+    private final int ON_KILL_WIN_CONST = 100;
 
     JingleBall plugin;
-    List<UUID> recent_collectors = new ArrayList<UUID>();
-    List<Location> player_spawns = new ArrayList<Location>();
+    List<UUID> recentSnowballHarvesters = new ArrayList<UUID>();
+    List<Location> spawnLocations = new ArrayList<Location>();
 
     public PlayerEventListener(JingleBall p) {
         this.plugin = p;
@@ -39,7 +46,7 @@ public class PlayerEventListener implements Listener {
                 System.out.println(s);
                 String[] coords = ((String) s).split(",");
 
-                player_spawns.add(new Location(null,
+                spawnLocations.add(new Location(null,
                         Double.parseDouble(coords[0]),
                         Double.parseDouble(coords[1]),
                         Double.parseDouble(coords[2])
@@ -53,32 +60,38 @@ public class PlayerEventListener implements Listener {
                 && e.getClickedBlock().getType() == Material.SNOW
                 && !e.getPlayer().getInventory().containsAtLeast(new ItemStack(Material.SNOWBALL), 16)) {
 
-            if (recent_collectors.contains(e.getPlayer().getUniqueId()))
+
+            // don't allow the player to harvest snow too often
+            if (recentSnowballHarvesters.contains(e.getPlayer().getUniqueId()))
                 return;
-            recent_collectors.add(e.getPlayer().getUniqueId());
 
-            new BukkitRunnable() {
-                public void run() {
-                    recent_collectors.remove(e.getPlayer().getUniqueId());
-                }
-            }
-                    .runTaskLater(plugin, 3);
 
+            recentSnowballHarvesters.add(e.getPlayer().getUniqueId());
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
-            if ((int) (Math.random() * 48) == 1) // RANDOM STUFF!! WOO!!!
+            // RANDOM STUFF!! WOO!!!
+            if ((int) (Math.random() * LUCKY_CHANCE) == 1)
                 LuckySnows.drawRandomItem(e.getPlayer(), e.getClickedBlock());
 
 
             Block block = e.getClickedBlock();
             decrementSnow(block.getLocation());
 
-            new BukkitRunnable() {
-                public void run() {
-                    incrementSnow(block.getLocation());
-                }
-            }
-                    .runTaskLater(plugin, SNOW_REGEN_DELAY);
+
+            // allow player to collect snow again after a certain period of time
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                    plugin,
+                    () -> recentSnowballHarvesters.remove(e.getPlayer().getUniqueId()),
+                    SNOW_COLLECT_TIMEOUT
+            );
+
+            // regenerate the harvested snow after a certain period of time
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                    plugin,
+                    () -> incrementSnow(block.getLocation()),
+                    SNOW_REGEN_DELAY
+            );
+
             return;
         }
     }
@@ -173,8 +186,8 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onRespawn(PlayerRespawnEvent e) {
 
-        if (player_spawns.size() > 0) {
-            Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
+        if (spawnLocations.size() > 0) {
+            Location random_loc = spawnLocations.get((int) (Math.random() * spawnLocations.size()));
             e.setRespawnLocation(new Location(e.getPlayer().getWorld(),
                     random_loc.getX() + 0.5,
                     random_loc.getY() + 1.5,
@@ -186,20 +199,20 @@ public class PlayerEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onJoin(PlayerSpawnLocationEvent e) {
 
-        new BukkitRunnable() {
-            public void run() {
-                plugin.getScores().addPlayer(e.getPlayer());
-            }
-        }
-                .runTaskLater(plugin, 20);
+        // add player to scoreboard in 1 second
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                plugin,
+                () -> plugin.getScores().addPlayer(e.getPlayer()),
+                20
+        );
 
         e.getPlayer().setFoodLevel(20);
         e.getPlayer().setHealth(20);
         e.getPlayer().getInventory().clear();
         applyPlayerArmor(e.getPlayer().getInventory(), Color.WHITE);
 
-        if (player_spawns.size() > 0) {
-            Location random_loc = player_spawns.get((int) (Math.random() * player_spawns.size()));
+        if (spawnLocations.size() > 0) {
+            Location random_loc = spawnLocations.get((int) (Math.random() * spawnLocations.size()));
             e.setSpawnLocation(new Location(e.getPlayer().getWorld(),
                     random_loc.getX() + 0.5,
                     random_loc.getY() + 1.5,
@@ -244,12 +257,13 @@ public class PlayerEventListener implements Listener {
             return;
 
         decrementSnow(b.getLocation());
-        new BukkitRunnable() {
-            public void run() {
-                incrementSnow(b.getLocation());
-            }
-        }
-                .runTaskLater(plugin, SNOW_REGEN_DELAY);
+
+        // regenerate snow after a certain period
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+                plugin,
+                () -> incrementSnow(b.getLocation()),
+                SNOW_REGEN_DELAY
+        );
 
     }
 
@@ -321,7 +335,6 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
-        Player p = (Player) e.getEntity();
         if (e.getItem().getItemStack().getType() == Material.PRISMARINE_SHARD) {
 
             if (e.getItem().getItemStack().getItemMeta() != null
@@ -341,21 +354,49 @@ public class PlayerEventListener implements Listener {
                 i.setType(Material.AIR);
         }
 
-        Player who_died = e.getEntity();
-
-
-        int ded_score = plugin.getScores().getPlayerScore(who_died.getUniqueId());
-        Player killer = who_died.getKiller();
+        Player whoDied = e.getEntity();
+        int deadsScore = plugin.getScores().getPlayerScore(whoDied.getUniqueId());
+        Player killer = whoDied.getKiller();
 
         if (killer != null) {
-            e.setDeathMessage(ChatColor.RED+who_died.getDisplayName()+" took "+killer.getDisplayName()+"'s balls to the face!");
-            plugin.getScores().adjustPlayerScore(killer.getUniqueId(),25 + ded_score/2);
+            e.setDeathMessage(ChatColor.RED+getDeathMessage(whoDied.getName(), killer.getName()));
+
+            int gainedPoints = ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN);
+            plugin.getScores().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
+            killer.sendMessage(ChatColor.GREEN+"You gained "+gainedPoints+" points for killing "+whoDied.getName());
         }
-        plugin.getScores().setPlayerScore(who_died.getUniqueId(),ded_score/3);
+
+        int lostPoints = (int)(deadsScore* ON_DEATH_LOSE);
+        plugin.getScores().setPlayerScore(whoDied.getUniqueId(),lostPoints);
+        whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onDamageItem(PlayerItemDamageEvent e){
         e.setCancelled(true);
+    }
+
+    private String getDeathMessage(String died, String killer) {
+
+        String[] deathMessages = {
+                "{died} took {killer}'s balls to the face!",
+                "{killer} pushed {died} into some yellow snow!",
+                "{died} had too much of {killer}'s eggnog!",
+                "{killer} let {died} die of frostbite!",
+                "{killer} gave {died} a run for their money!",
+                "{died} ate pavement thanks to {killer}!",
+                "{died} couldn't outrun {killer}!",
+                "{killer} brought {died} to tears!",
+                "{died} wasn't fast enough to avoid {killer}!",
+                "{killer} stomped on {died}'s snowman!",
+                "{killer} mercilessly slaughtered {died}!"
+        };
+
+        String randomMessage = deathMessages[(int)(deathMessages.length * Math.random())];
+        randomMessage = randomMessage.replaceAll("\\{died\\}", died);
+        randomMessage = randomMessage.replaceAll("\\{killer\\}", killer);
+
+        return randomMessage;
     }
 }
