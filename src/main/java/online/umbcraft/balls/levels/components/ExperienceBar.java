@@ -7,6 +7,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 public class ExperienceBar {
 
     final private int MAX_LEVEL;
+
     public ExperienceBar(int maxLevel) {
         this.MAX_LEVEL = maxLevel;
     }
@@ -15,7 +16,7 @@ public class ExperienceBar {
     private double expCostFunction(int level) {
         if (level <= 0)
             return 0;
-        return 20 + level * 10;
+        return 10 + level * 5;
     }
 
     // returns the amount of exp needed to go from lvl 0 to the given level
@@ -44,33 +45,34 @@ public class ExperienceBar {
         System.out.println("handing death??");
         e.setNewExp(0);
         e.setNewLevel(1);
-       e.setDroppedExp(0);
+        e.setDroppedExp(0);
     }
 
     // increase a players xp bar by feeding them game xp
     // returns true if the player increased in level
-    public boolean incrementExp(Player p, double amount) {
+    public int incrementExp(Player p, double amount) {
 
         int level = p.getLevel();
 
-        if(level >= MAX_LEVEL)
-            return false;
+        if (level >= MAX_LEVEL)
+            return 0;
 
         float barPercent = p.getExp();
         double levelCost = expCostFunction(level);
         double stillNeed = (1 - barPercent) * levelCost;
 
-        // if player gained enough xp to level up, recursively try to level them again
-        if (amount > stillNeed) {
-            p.setLevel(level + 1);
-            p.setExp(0);
-            incrementExp(p, amount - stillNeed);
-            return true;
-        }
 
         // if the player did not gain enough xp to level up, update the xp bar
-        float gained = (float) (amount / levelCost);
-        p.setExp(barPercent + gained);
-        return false;
+        if (amount < stillNeed) {
+            float gained = (float) (amount / levelCost);
+            p.setExp(barPercent + gained);
+            return 0;
+        }
+
+        // if player gained enough xp to level up, recursively try to level them again
+        p.setLevel(level + 1);
+        p.setExp(0);
+        return 1 + incrementExp(p, amount - stillNeed);
+
     }
 }

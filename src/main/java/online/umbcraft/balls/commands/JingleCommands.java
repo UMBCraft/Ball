@@ -1,6 +1,8 @@
 package online.umbcraft.balls.commands;
 
 import online.umbcraft.balls.JingleBall;
+import online.umbcraft.balls.levels.components.PlayerPerks;
+import online.umbcraft.balls.levels.components.perks.Perk;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -37,6 +39,9 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
         if(args[0].equalsIgnoreCase("spectate")) {
             return onSpecateCommand(sender);
         }
+        if(args[0].equalsIgnoreCase("perk")) {
+            return onPerkCommand(sender, args);
+        }
         if(args[0].equalsIgnoreCase("tournament")) {
             if(args.length != 2) {
                 return onEmptyCommand(sender);
@@ -52,6 +57,22 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
         return false;
     }
 
+
+    public boolean onPerkCommand(CommandSender sender, String[] args) {
+        if(!sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
+            sender.sendMessage(ChatColor.RED + "You're not magical enough to give perks! (need "+JinglePerm.PERK+")");
+            return false;
+        }
+        if(args.length == 4) {
+            Player p = plugin.getServer().getPlayer(args[2]);
+            if(args[1].equalsIgnoreCase("add"))
+                plugin.getLevelingManager().addPerk(p, Perk.valueOf(args[3]));
+            else if(args[1].equalsIgnoreCase("remove"))
+                plugin.getLevelingManager().removePerk(p, Perk.valueOf(args[3]));
+
+        }
+        return false;
+    }
     public boolean onTournamentCommand(CommandSender sender, String option) {
         if(!sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
             sender.sendMessage(ChatColor.RED + "You're not magical enough to start a tournament! (need "+JinglePerm.TOURNAMENT+")");
@@ -102,8 +123,8 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
             else {
                 plugin.getSpectators().remove(uuid);
                 playerSender.setGameMode(GameMode.SURVIVAL);
-                playerSender.setHealth(0);
                 plugin.getScoreManager().addPlayer(playerSender);
+                playerSender.setHealth(0);
                 sender.sendMessage(ChatColor.GREEN + "You are no longer a spectator! Good luck!");
             }
         }
@@ -126,7 +147,7 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ChatColor.GREEN+"You are now a spectator. Enjoy the show!");
                 plugin.getSpectators().add(uuid);
                 playerSender.setGameMode(GameMode.SPECTATOR);
-                plugin.getLevelingManager().setExp(playerSender, 0);
+                plugin.getLevelingManager().resetExp(playerSender);
                 plugin.getScoreManager().removePlayer(uuid);
                 plugin.getScoreManager().showScoreboard(playerSender);
             }
@@ -177,6 +198,9 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
             if (sender.hasPermission(JinglePerm.EXP.path)) {
                 commands.add("exp");
             }
+            if (sender.hasPermission(JinglePerm.PERK.path)) {
+                commands.add("perk");
+            }
             if (sender.hasPermission(JinglePerm.TOURNAMENT.path)) {
                 commands.add("tournament");
             }
@@ -195,7 +219,13 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 commands.add("start");
                 commands.add("clear");
             }
-            completions.addAll(commands);
+            StringUtil.copyPartialMatches(args[1], commands, completions);
+        }
+        if(args.length == 2 && args[0].equals("perk")) {
+            if (sender.hasPermission(JinglePerm.PERK.path)) {
+                commands.add("add");
+                commands.add("remove");
+            }
             StringUtil.copyPartialMatches(args[1], commands, completions);
         }
         if(args.length == 3 && args[0].equals("exp")) {
@@ -203,6 +233,23 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
                 commands.add("<amount>");
             }
             completions.addAll(commands);
+        }
+        if(args.length == 3 && args[0].equals("perk")) {
+            if (sender.hasPermission(JinglePerm.PERK.path)) {
+                for(UUID uuid: plugin.getScoreManager().getPlayingPlayers()) {
+                    commands.add(plugin.getServer().getPlayer(uuid).getName());
+                }
+            }
+            StringUtil.copyPartialMatches(args[2], commands, completions);
+        }
+
+        if(args.length == 4 && args[0].equals("perk")) {
+            if (sender.hasPermission(JinglePerm.PERK.path)) {
+                for(Perk perk: PlayerPerks.PERKS) {
+                    commands.add(perk.toString());
+                }
+            }
+            StringUtil.copyPartialMatches(args[3], commands, completions);
         }
         Collections.sort(completions);
         return completions;

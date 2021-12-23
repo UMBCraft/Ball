@@ -151,6 +151,8 @@ public class ScoreManager {
     }
 
     public synchronized int getPlayerScore(UUID uuid) {
+        if(!unsorted_scores.containsKey(uuid))
+            return DEFAULT_SCORE;
         return unsorted_scores.get(uuid).getScore();
     }
 

@@ -2,6 +2,7 @@ package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.JingleBall;
 import online.umbcraft.balls.levels.LevelingManager;
+import online.umbcraft.balls.levels.components.perks.Perk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,7 +18,8 @@ public class ExpEventListener implements Listener {
     final private JingleBall plugin;
     final private LevelingManager lm;
 
-    final private double XP_PER_KILL = 10.5;
+    final private double XP_PER_KILL = 5.1;
+    final private double XP_PER_LEVEL = 1.55 ;
 
     public ExpEventListener(JingleBall plugin, LevelingManager lm) {
         this.plugin = plugin;
@@ -31,7 +33,7 @@ public class ExpEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onJoin(PlayerJoinEvent e) {
-        lm.setExp(e.getPlayer(), 0);
+        lm.resetExp(e.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -53,6 +55,10 @@ public class ExpEventListener implements Listener {
         if(killer == null)
             return;
 
-        lm.addExp(killer, XP_PER_KILL);
+
+        double toGain = XP_PER_KILL + (died.getLevel()-1) * XP_PER_LEVEL;
+        if(plugin.getLevelingManager().hasPerk(killer, Perk.EXP))
+            toGain *= 1.25;
+        lm.addExp(killer, toGain);
     }
 }

@@ -2,6 +2,7 @@ package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.JingleBall;
 import online.umbcraft.balls.items.LuckySnows;
+import online.umbcraft.balls.levels.components.perks.Perk;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
@@ -18,6 +19,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.*;
@@ -32,10 +35,12 @@ public class PlayerEventListener implements Listener {
     private final double ON_DEATH_LOSE = 0.2;
     private final double ON_KILL_WIN = 0.1;
     private final int ON_KILL_WIN_CONST = 100;
-
+    private final Map<UUID, Long> recentSounds = new HashMap<>();
+    private final Sound[] sounds = Sound.values();
+    private final Map<UUID, Long> increasedDamage = new HashMap<>();
     JingleBall plugin;
-    List<UUID> recentSnowballHarvesters = new ArrayList<UUID>();
-    List<Location> spawnLocations = new ArrayList<Location>();
+    List<UUID> recentSnowballHarvesters = new ArrayList<>();
+    List<Location> spawnLocations = new ArrayList<>();
 
     public PlayerEventListener(JingleBall p) {
         this.plugin = p;
@@ -69,7 +74,11 @@ public class PlayerEventListener implements Listener {
             e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL));
 
             // RANDOM STUFF!! WOO!!!
-            if ((int) (Math.random() * LUCKY_CHANCE) == 1)
+
+            boolean hasChancesPerk = plugin.getLevelingManager()
+                    .hasPerk(e.getPlayer(), Perk.CHANCES);
+
+            if ((int) (Math.random() * (LUCKY_CHANCE - (hasChancesPerk ? 8 : 0))) == 1)
                 LuckySnows.drawRandomItem(e.getPlayer(), e.getClickedBlock());
 
 
@@ -130,7 +139,7 @@ public class PlayerEventListener implements Listener {
         }
 
         if (original.getType() == Material.ICE &&
-        original.getMetadata("placed_block").contains("yes")) {
+                original.getMetadata("placed_block").contains("yes")) {
             original.setType(Material.SNOW);
             return;
         }
@@ -168,7 +177,7 @@ public class PlayerEventListener implements Listener {
         ItemStack legs = new ItemStack(Material.LEATHER_LEGGINGS);
         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
         LeatherArmorMeta meta = (LeatherArmorMeta) chest.getItemMeta();
-        meta.setDisplayName(ChatColor.GRAY+"Snow Suit");
+        meta.setDisplayName(ChatColor.GRAY + "Snow Suit");
         meta.setColor(c);
 
         //helm.setItemMeta(meta);
@@ -208,15 +217,20 @@ public class PlayerEventListener implements Listener {
                 () -> plugin.getScoreManager().addPlayer(e.getPlayer()),
                 20
         );
+        Player p = e.getPlayer();
+        p.setFoodLevel(20);
+        p.setHealth(20);
+        p.getInventory().clear();
 
-        e.getPlayer().setFoodLevel(20);
-        e.getPlayer().setHealth(20);
-        e.getPlayer().getInventory().clear();
-        applyPlayerArmor(e.getPlayer().getInventory(), Color.WHITE);
+        if(p.getActivePotionEffects().size() > 0)
+            for(PotionEffect effect: e.getPlayer().getActivePotionEffects())
+                p.removePotionEffect(effect.getType());
+
+        applyPlayerArmor(p.getInventory(), Color.WHITE);
 
         if (spawnLocations.size() > 0) {
             Location random_loc = spawnLocations.get((int) (Math.random() * spawnLocations.size()));
-            e.setSpawnLocation(new Location(e.getPlayer().getWorld(),
+            e.setSpawnLocation(new Location(p.getWorld(),
                     random_loc.getX() + 0.5,
                     random_loc.getY() + 1.5,
                     random_loc.getZ() + 0.5));
@@ -231,22 +245,95 @@ public class PlayerEventListener implements Listener {
 
     }
 
+    // perks:
+    // feather
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onTakingDamage(EntityDamageEvent e) {
+
+        if (!(e.getEntity() instanceof Player)
+                || e.getCause() != EntityDamageEvent.DamageCause.FALL)
+            return;
+
+        Player p = (Player) e.getEntity();
+
+        System.out.println("has feather perk? "+plugin.getLevelingManager().hasPerk(p, Perk.FEATHER));
+        if (plugin.getLevelingManager().hasPerk(p, Perk.FEATHER)) {
+            double newdamage = e.getDamage() - 2;
+            if(newdamage <= 0)
+                e.setCancelled(true);
+            e.setDamage(newdamage);
+
+        }
+    }
+
+
+    // perks:
+    // sound
+    // glowing
+    // slow
+    // melee
+    // target
+    // grouped
     @EventHandler(priority = EventPriority.NORMAL)
     public void onTakingDamage(EntityDamageByEntityEvent e) {
 
-        if (e.getDamager().getType() == EntityType.SNOWBALL) {
+        if (!(e.getEntity() instanceof Player))
+            return;
 
+        Player hurtee = (Player) e.getEntity();
+        double finalDamage = 0;
+
+        // if they were damaged by a snowball
+        if (e.getDamager().getType() == EntityType.SNOWBALL) {
             Snowball snowball = (Snowball) e.getDamager();
             Entity shooter = (Entity) snowball.getShooter();
             e.getEntity().setVelocity(shooter.getLocation().getDirection().setY(0).normalize().multiply(1.25));
+            finalDamage = 4;
             if (shooter instanceof Player) {
-                ((Player) shooter).playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
-                ((Player) shooter).stopSound(Sound.ENTITY_PLAYER_HURT);
+                Player playerShooter = (Player) shooter;
+                playerShooter.playSound(shooter.getLocation(), Sound.ENTITY_COD_FLOP, 1, 1f);
+                playerShooter.stopSound(Sound.ENTITY_PLAYER_HURT);
+
+                // perks!
+                if (plugin.getLevelingManager().hasPerk(playerShooter, Perk.GLOWING)) {
+                    ((Player) e.getEntity()).addPotionEffect(
+                            new PotionEffect(PotionEffectType.GLOWING, 20 * 5, 0));
+                }
+                if (plugin.getLevelingManager().hasPerk(playerShooter, Perk.GLOWING)) {
+                    finalDamage += 0.75;
+                }
             }
-            e.setDamage(4);
-            return;
+
+            // if they were damaged by a player punch
+        } else if (e.getDamager() instanceof Player) {
+            // perks!
+            Player hurter = (Player) e.getDamager();
+            if (plugin.getLevelingManager().hasPerk(hurter, Perk.SLOW)) {
+                hurtee.addPotionEffect(
+                        new PotionEffect(PotionEffectType.SLOW, 20 * 2, 0));
+            }
+            finalDamage = (plugin.getLevelingManager().hasPerk(hurter, Perk.MELEE) ? 2 : 0);
         }
-        e.setDamage(0);
+
+        // stack the damage if they were targeted
+        long curTime = System.currentTimeMillis();
+        finalDamage = (curTime - increasedDamage.getOrDefault(hurtee.getUniqueId(), 0L) < 2000)
+                ? finalDamage * 1.2 : finalDamage;
+        if (plugin.getLevelingManager().hasPerk(hurtee, Perk.TARGET))
+            increasedDamage.put(hurtee.getUniqueId(), curTime);
+
+
+        // reduce the damage if they are grouped
+        if (plugin.getLevelingManager().hasPerk(hurtee, Perk.GROUPED)) {
+            finalDamage = finalDamage *
+                    Math.pow(0.9, hurtee.getNearbyEntities(7, 4, 7)
+                            .stream().filter(i -> i instanceof Player
+                                    && !plugin.getSpectators().contains(i))
+                            .count() - 1);
+        }
+
+        e.setDamage(finalDamage);
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -305,6 +392,23 @@ public class PlayerEventListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
+    public void onMove(PlayerMoveEvent e) {
+        if (!plugin.getLevelingManager().hasPerk(e.getPlayer(), Perk.SOUNDS))
+            return;
+
+        UUID uid = e.getPlayer().getUniqueId();
+
+        long lastTime = recentSounds.getOrDefault(uid, 0L);
+        long curTime = System.currentTimeMillis();
+
+        if (curTime - lastTime > 2000) {
+            recentSounds.put(uid, curTime);
+            e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(),
+                    sounds[(int) (Math.random() * sounds.length)], 10, 1);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onUseOffhand(PlayerSwapHandItemsEvent e) {
         e.setCancelled(true);
     }
@@ -354,10 +458,19 @@ public class PlayerEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onDeath(PlayerDeathEvent e) {
+
+        Material[] keep = {
+                Material.BELL,
+                Material.COAL,
+                Material.SWEET_BERRIES,
+                Material.PRISMARINE_SHARD,
+                Material.IRON_HOE};
+
         for (ItemStack i : e.getDrops()) {
-            if (i.getType() == Material.SNOWBALL ||
-            i.getType().name().contains("LEATHER"))
-                i.setType(Material.AIR);
+            Arrays.stream(keep).forEach(k ->  {
+                if(!i.getType().equals(k))
+                    i.setType(Material.AIR);
+            });
         }
 
         Player whoDied = e.getEntity();
@@ -366,30 +479,29 @@ public class PlayerEventListener implements Listener {
 
         double multiplier = plugin.getTournamentManager().getActiveMultiplier();
 
-        int lostPoints = (int)(deadsScore*ON_DEATH_LOSE);
-        plugin.getScoreManager().setPlayerScore(whoDied.getUniqueId(),lostPoints);
+        int lostPoints = (int) (deadsScore * ON_DEATH_LOSE);
+        plugin.getScoreManager().setPlayerScore(whoDied.getUniqueId(), lostPoints);
 
         // allow the player to get a custom death message if they kill themselves
-        if(killer != null)
-            e.setDeathMessage(ChatColor.RED+getDeathMessage(whoDied.getName(), killer.getName()));
+        if (killer != null)
+            e.setDeathMessage(ChatColor.RED + getDeathMessage(whoDied.getName(), killer.getName()));
         else
             e.setDeathMessage(null);
         // send a message to the players if one died to another, and
         // do something different if the player died to nobody or to themselves
         if (killer != null && !killer.getUniqueId().equals(whoDied.getUniqueId())) {
 
-            int gainedPoints = (int)(multiplier* (ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN)));
-            plugin.getScoreManager().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
-            killer.sendMessage(ChatColor.GREEN+"You gained "+gainedPoints+" points for killing "+whoDied.getName());
-            whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
-        }
-        else {
-            whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying");
+            int gainedPoints = (int) (multiplier * (ON_KILL_WIN_CONST + (int) (deadsScore * ON_KILL_WIN)));
+            plugin.getScoreManager().adjustPlayerScore(killer.getUniqueId(), gainedPoints);
+            killer.sendMessage(ChatColor.GREEN + "You gained " + gainedPoints + " points for killing " + whoDied.getName());
+            whoDied.sendMessage(ChatColor.GOLD + "You lost " + lostPoints + " points for dying to " + killer.getName());
+        } else {
+            whoDied.sendMessage(ChatColor.GOLD + "You lost " + lostPoints + " points for dying");
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
-    public void onDamageItem(PlayerItemDamageEvent e){
+    public void onDamageItem(PlayerItemDamageEvent e) {
         e.setCancelled(true);
     }
 
@@ -409,7 +521,7 @@ public class PlayerEventListener implements Listener {
                 "{killer} mercilessly slaughtered {died}!"
         };
 
-        String randomMessage = deathMessages[(int)(deathMessages.length * Math.random())];
+        String randomMessage = deathMessages[(int) (deathMessages.length * Math.random())];
         randomMessage = randomMessage.replaceAll("\\{died\\}", died);
         randomMessage = randomMessage.replaceAll("\\{killer\\}", killer);
 

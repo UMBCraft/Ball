@@ -12,6 +12,8 @@ public enum JinglePerm {
 
     EXP("jingle.exp"),
 
+    PERK("jingle.perk"),
+
     ANTITEAM("jingle.antiteam");
 
     final public String path;
