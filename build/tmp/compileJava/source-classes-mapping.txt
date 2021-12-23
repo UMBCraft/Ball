@@ -1,3 +1,5 @@
+online/umbcraft/balls/enums/JinglePerm.java
+ online.umbcraft.balls.enums.JinglePerm
 online/umbcraft/balls/scoreboard/IndividualScore.java
  online.umbcraft.balls.scoreboard.IndividualScore
 online/umbcraft/balls/listener/LuckyEventListener.java
@@ -9,12 +11,12 @@ online/umbcraft/balls/listener/LuckyEventListener.java
  online.umbcraft.balls.listener.LuckyEventListener$5
 online/umbcraft/balls/listener/WandEventListener.java
  online.umbcraft.balls.listener.WandEventListener
-online/umbcraft/balls/BallsCommands.java
- online.umbcraft.balls.BallsCommands
 online/umbcraft/balls/scoreboard/ScoreManager.java
  online.umbcraft.balls.scoreboard.ScoreManager
  online.umbcraft.balls.scoreboard.ScoreManager$1
  online.umbcraft.balls.scoreboard.ScoreManager$ScoreNode
+online/umbcraft/balls/listener/JingleCommands.java
+ online.umbcraft.balls.listener.JingleCommands
 online/umbcraft/balls/scoreboard/IndividualScoreboard.java
  online.umbcraft.balls.scoreboard.IndividualScoreboard
 online/umbcraft/balls/LuckySnows.java
@@ -23,9 +25,5 @@ online/umbcraft/balls/scoreboard/BallsScoreboard.java
  online.umbcraft.balls.scoreboard.BallsScoreboard
 online/umbcraft/balls/listener/PlayerEventListener.java
  online.umbcraft.balls.listener.PlayerEventListener
- online.umbcraft.balls.listener.PlayerEventListener$1
- online.umbcraft.balls.listener.PlayerEventListener$2
- online.umbcraft.balls.listener.PlayerEventListener$3
- online.umbcraft.balls.listener.PlayerEventListener$4
 online/umbcraft/balls/JingleBall.java
  online.umbcraft.balls.JingleBall

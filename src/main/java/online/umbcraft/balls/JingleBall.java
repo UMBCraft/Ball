@@ -1,6 +1,6 @@
 package online.umbcraft.balls;
 
-import online.umbcraft.balls.listener.BallsCommands;
+import online.umbcraft.balls.listener.JingleCommands;
 import online.umbcraft.balls.listener.LuckyEventListener;
 import online.umbcraft.balls.listener.PlayerEventListener;
 import online.umbcraft.balls.listener.WandEventListener;
@@ -9,15 +9,32 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public final class JingleBall extends JavaPlugin {
 
-    private ScoreManager scores;
+    final private ScoreManager scores;
+    final private Set<UUID> spectators;
+
+    public JingleBall() {
+        super();
+        spectators = new HashSet<>();
+        scores = new ScoreManager(10,0);
+    }
+
+    public Set<UUID> getSpectators() {
+        return spectators;
+    }
+
+    public boolean isSpectator(UUID player) {
+        return spectators.contains(player);
+    }
 
     @Override
     public void onEnable() {
 
-        scores = new ScoreManager(10,0);
         File configFile = new File(this.getDataFolder(), "config.yml");
         if (!configFile.exists())
             this.saveDefaultConfig();
@@ -31,7 +48,7 @@ public final class JingleBall extends JavaPlugin {
         LuckyEventListener special_listener = new LuckyEventListener(this);
         Bukkit.getServer().getPluginManager().registerEvents(special_listener, this);
 
-        this.getCommand("jingle").setExecutor(new BallsCommands(this));
+        this.getCommand("jingle").setExecutor(new JingleCommands(this));
     }
 
     public ScoreManager getScores() {

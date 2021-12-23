@@ -193,6 +193,10 @@ public class PlayerEventListener implements Listener {
                     random_loc.getY() + 1.5,
                     random_loc.getZ() + 0.5));
         }
+
+        e.getPlayer().setFoodLevel(20);
+        e.getPlayer().setHealth(20);
+        e.getPlayer().getInventory().clear();
         applyPlayerArmor(e.getPlayer().getInventory(), Color.WHITE);
     }
 
@@ -358,18 +362,26 @@ public class PlayerEventListener implements Listener {
         int deadsScore = plugin.getScores().getPlayerScore(whoDied.getUniqueId());
         Player killer = whoDied.getKiller();
 
-        if (killer != null) {
+        int lostPoints = (int)(deadsScore* ON_DEATH_LOSE);
+        plugin.getScores().setPlayerScore(whoDied.getUniqueId(),lostPoints);
+
+        // allow the player to get a custom death message if they kill themselves
+        if(killer != null)
             e.setDeathMessage(ChatColor.RED+getDeathMessage(whoDied.getName(), killer.getName()));
+        else
+            e.setDeathMessage(null);
+        // send a message to the players if one died to another, and
+        // do something different if the player died to nobody or to themselves
+        if (killer != null && !killer.getUniqueId().equals(whoDied.getUniqueId())) {
 
             int gainedPoints = ON_KILL_WIN_CONST + (int)(deadsScore * ON_KILL_WIN);
             plugin.getScores().adjustPlayerScore(killer.getUniqueId(),gainedPoints);
             killer.sendMessage(ChatColor.GREEN+"You gained "+gainedPoints+" points for killing "+whoDied.getName());
+            whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
         }
-
-        int lostPoints = (int)(deadsScore* ON_DEATH_LOSE);
-        plugin.getScores().setPlayerScore(whoDied.getUniqueId(),lostPoints);
-        whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying to "+killer.getName());
-
+        else {
+            whoDied.sendMessage(ChatColor.GOLD+"You lost "+lostPoints+" points for dying");
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

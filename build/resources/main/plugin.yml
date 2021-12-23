@@ -1,11 +1,11 @@
-name: Balls
+name: JingleBall
 version: ${project.version}
-main: online.umbcraft.balls.Balls
+main: online.umbcraft.balls.JingleBall
 api-version: 1.16
-prefix: Balls
+prefix: JingleBall
 authors: [Ivan8or]
 description: Christmas PvP Game
 website: umbcraft.online
 commands:
-  balls:
+  jingle:
     description: used for all JingleBalls related commands
