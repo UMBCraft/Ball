@@ -1,29 +1,86 @@
-online/umbcraft/balls/enums/JinglePerm.java
- online.umbcraft.balls.enums.JinglePerm
-online/umbcraft/balls/scoreboard/IndividualScore.java
- online.umbcraft.balls.scoreboard.IndividualScore
+online/umbcraft/balls/levels/components/perks/median/DamagePerk.java
+ online.umbcraft.balls.levels.components.perks.median.DamagePerk
+online/umbcraft/balls/levels/components/perks/minor/SoundsPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.SoundsPerk
+online/umbcraft/balls/commands/JingleCommands.java
+ online.umbcraft.balls.commands.JingleCommands
+online/umbcraft/balls/tournament/TournamentManager.java
+ online.umbcraft.balls.tournament.TournamentManager
+online/umbcraft/balls/levels/components/perks/minor/MeleePerk.java
+ online.umbcraft.balls.levels.components.perks.minor.MeleePerk
+online/umbcraft/balls/levels/components/PlayerPerks.java
+ online.umbcraft.balls.levels.components.PlayerPerks
+online/umbcraft/balls/levels/components/perks/Perk.java
+ online.umbcraft.balls.levels.components.perks.Perk
+online/umbcraft/balls/levels/components/perks/minor/FeatherPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.FeatherPerk
+online/umbcraft/balls/listener/WandEventListener.java
+ online.umbcraft.balls.listener.WandEventListener
+online/umbcraft/balls/items/LuckySnows.java
+ online.umbcraft.balls.items.LuckySnows
+online/umbcraft/balls/levels/components/perks/minor/HelmetPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.HelmetPerk
+online/umbcraft/balls/tournament/components/TimedBossBar.java
+ online.umbcraft.balls.tournament.components.TimedBossBar
+online/umbcraft/balls/levels/components/perks/minor/GlowingPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.GlowingPerk
+online/umbcraft/balls/listener/PlayerEventListener.java
+ online.umbcraft.balls.listener.PlayerEventListener
+online/umbcraft/balls/levels/components/perks/median/HealthPerk.java
+ online.umbcraft.balls.levels.components.perks.median.HealthPerk
+online/umbcraft/balls/levels/components/perks/minor/ChancesPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.ChancesPerk
+online/umbcraft/balls/levels/components/perks/major/ImmunePerk.java
+ online.umbcraft.balls.levels.components.perks.major.ImmunePerk
+online/umbcraft/balls/levels/components/perks/median/SlowPerk.java
+ online.umbcraft.balls.levels.components.perks.median.SlowPerk
+online/umbcraft/balls/scoreboard/components/IndividualScore.java
+ online.umbcraft.balls.scoreboard.components.IndividualScore
+online/umbcraft/balls/tournament/components/Tournament.java
+ online.umbcraft.balls.tournament.components.Tournament
+online/umbcraft/balls/levels/components/perks/median/JumpPerk.java
+ online.umbcraft.balls.levels.components.perks.median.JumpPerk
+online/umbcraft/balls/levels/components/perks/major/SpeedPerk.java
+ online.umbcraft.balls.levels.components.perks.major.SpeedPerk
+online/umbcraft/balls/JingleBall.java
+ online.umbcraft.balls.JingleBall
+online/umbcraft/balls/levels/components/perks/PerkImplementation.java
+ online.umbcraft.balls.levels.components.perks.PerkImplementation
+online/umbcraft/balls/levels/components/perks/major/GroupedPerk.java
+ online.umbcraft.balls.levels.components.perks.major.GroupedPerk
+online/umbcraft/balls/levels/components/perks/minor/ExpPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.ExpPerk
+online/umbcraft/balls/listener/BossBarEventListener.java
+ online.umbcraft.balls.listener.BossBarEventListener
+online/umbcraft/balls/scoreboard/components/IndividualScoreboard.java
+ online.umbcraft.balls.scoreboard.components.IndividualScoreboard
 online/umbcraft/balls/listener/LuckyEventListener.java
  online.umbcraft.balls.listener.LuckyEventListener
  online.umbcraft.balls.listener.LuckyEventListener$1
  online.umbcraft.balls.listener.LuckyEventListener$2
  online.umbcraft.balls.listener.LuckyEventListener$3
  online.umbcraft.balls.listener.LuckyEventListener$4
- online.umbcraft.balls.listener.LuckyEventListener$5
-online/umbcraft/balls/listener/WandEventListener.java
- online.umbcraft.balls.listener.WandEventListener
+online/umbcraft/balls/levels/components/perks/minor/ArmorPerk.java
+ online.umbcraft.balls.levels.components.perks.minor.ArmorPerk
 online/umbcraft/balls/scoreboard/ScoreManager.java
  online.umbcraft.balls.scoreboard.ScoreManager
  online.umbcraft.balls.scoreboard.ScoreManager$1
  online.umbcraft.balls.scoreboard.ScoreManager$ScoreNode
-online/umbcraft/balls/listener/JingleCommands.java
- online.umbcraft.balls.listener.JingleCommands
-online/umbcraft/balls/scoreboard/IndividualScoreboard.java
- online.umbcraft.balls.scoreboard.IndividualScoreboard
-online/umbcraft/balls/LuckySnows.java
- online.umbcraft.balls.LuckySnows
-online/umbcraft/balls/scoreboard/BallsScoreboard.java
- online.umbcraft.balls.scoreboard.BallsScoreboard
-online/umbcraft/balls/listener/PlayerEventListener.java
- online.umbcraft.balls.listener.PlayerEventListener
-online/umbcraft/balls/JingleBall.java
- online.umbcraft.balls.JingleBall
+online/umbcraft/balls/levels/components/perks/median/InvisibilityPerk.java
+ online.umbcraft.balls.levels.components.perks.median.InvisibilityPerk
+online/umbcraft/balls/levels/components/ExperienceBar.java
+ online.umbcraft.balls.levels.components.ExperienceBar
+online/umbcraft/balls/scoreboard/components/BallsScoreboard.java
+ online.umbcraft.balls.scoreboard.components.BallsScoreboard
+online/umbcraft/balls/levels/LevelingManager.java
+ online.umbcraft.balls.levels.LevelingManager
+online/umbcraft/balls/commands/JinglePerm.java
+ online.umbcraft.balls.commands.JinglePerm
+online/umbcraft/balls/levels/components/perks/major/TargetPerk.java
+ online.umbcraft.balls.levels.components.perks.major.TargetPerk
+online/umbcraft/balls/levels/components/perks/PerkType.java
+ online.umbcraft.balls.levels.components.perks.PerkType
+online/umbcraft/balls/levels/components/perks/major/PotencyPerk.java
+ online.umbcraft.balls.levels.components.perks.major.PotencyPerk
+online/umbcraft/balls/listener/ExpEventListener.java
+ online.umbcraft.balls.listener.ExpEventListener

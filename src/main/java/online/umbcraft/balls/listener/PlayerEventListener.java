@@ -135,7 +135,6 @@ public class PlayerEventListener implements Listener {
                     e.teleport(e.getLocation().add(0, TP_AMNT, 0));
                 return;
             }
-
         }
 
         if (original.getType() == Material.ICE &&
@@ -144,6 +143,8 @@ public class PlayerEventListener implements Listener {
             return;
         }
 
+        if(!(original.getBlockData() instanceof Snow))
+            return;
         Snow snow = (Snow) original.getBlockData();
         snow.setLayers(snow.getLayers() + 1);
         original.setBlockData(snow);
@@ -222,9 +223,10 @@ public class PlayerEventListener implements Listener {
         p.setHealth(20);
         p.getInventory().clear();
 
-        if(p.getActivePotionEffects().size() > 0)
-            for(PotionEffect effect: e.getPlayer().getActivePotionEffects())
+        for (PotionEffect effect : e.getPlayer().getActivePotionEffects()) {
+            if (effect != null)
                 p.removePotionEffect(effect.getType());
+        }
 
         applyPlayerArmor(p.getInventory(), Color.WHITE);
 
@@ -256,10 +258,10 @@ public class PlayerEventListener implements Listener {
 
         Player p = (Player) e.getEntity();
 
-        System.out.println("has feather perk? "+plugin.getLevelingManager().hasPerk(p, Perk.FEATHER));
+        System.out.println("has feather perk? " + plugin.getLevelingManager().hasPerk(p, Perk.FEATHER));
         if (plugin.getLevelingManager().hasPerk(p, Perk.FEATHER)) {
             double newdamage = e.getDamage() - 2;
-            if(newdamage <= 0)
+            if (newdamage <= 0)
                 e.setCancelled(true);
             e.setDamage(newdamage);
 
@@ -401,7 +403,7 @@ public class PlayerEventListener implements Listener {
         long lastTime = recentSounds.getOrDefault(uid, 0L);
         long curTime = System.currentTimeMillis();
 
-        if (curTime - lastTime > 2000) {
+        if (curTime - lastTime > 5000) {
             recentSounds.put(uid, curTime);
             e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(),
                     sounds[(int) (Math.random() * sounds.length)], 10, 1);
@@ -451,7 +453,7 @@ public class PlayerEventListener implements Listener {
                     && e.getItem().getItemStack().getItemMeta().getLore() != null) {
 
                 e.setCancelled(true);
-                LuckyEventListener.placeIcicleSphere(e.getItem());
+                LuckyEventListener.placeIcicleSphere(e.getItem(), (Player) e.getEntity());
             }
         }
     }
@@ -467,8 +469,8 @@ public class PlayerEventListener implements Listener {
                 Material.IRON_HOE};
 
         for (ItemStack i : e.getDrops()) {
-            Arrays.stream(keep).forEach(k ->  {
-                if(!i.getType().equals(k))
+            Arrays.stream(keep).forEach(k -> {
+                if (!i.getType().equals(k))
                     i.setType(Material.AIR);
             });
         }
@@ -480,7 +482,10 @@ public class PlayerEventListener implements Listener {
         double multiplier = plugin.getTournamentManager().getActiveMultiplier();
 
         int lostPoints = (int) (deadsScore * ON_DEATH_LOSE);
-        plugin.getScoreManager().setPlayerScore(whoDied.getUniqueId(), lostPoints);
+        System.out.println(whoDied.getName()+" died and lost "+lostPoints+" of his "+deadsScore);
+        plugin.getScoreManager().adjustPlayerScore(whoDied.getUniqueId(), -1 * lostPoints);
+
+        System.out.println(whoDied.getName()+"'s new score is "+plugin.getScoreManager().getPlayerScore(whoDied.getUniqueId()));
 
         // allow the player to get a custom death message if they kill themselves
         if (killer != null)

@@ -40,6 +40,7 @@ public class IndividualScore {
     public String getContent() {
         return content;
     }
+
     public void setIndex(int to_set) {
         index = to_set;
         score.setScore(to_set);

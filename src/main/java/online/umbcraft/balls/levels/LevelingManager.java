@@ -30,6 +30,14 @@ public class LevelingManager {
         this.allPlPerks = new HashMap<>();
     }
 
+    public void expAll() {
+        for(Player p : plugin.getServer().getOnlinePlayers()) {
+            if(!plugin.getSpectators().contains(p)) {
+                addExp(p, 0.06);
+            }
+        }
+    }
+
     public boolean hasPerk(Player player, Perk perk) {
         return allPlPerks.containsKey(player.getUniqueId())
                 && allPlPerks.get(player.getUniqueId()).hasPerk(perk);
@@ -57,7 +65,8 @@ public class LevelingManager {
                     .filter(i -> !finalPerks.hasPerk(i))
                     .collect(Collectors.toList());
 
-            perks.applyPerk(p,dontHave
+            if(dontHave.size() > 0)
+                perks.applyPerk(p,dontHave
                     .get((int)(Math.random() * dontHave.size() ) ));
 
             gainedLevels--;
@@ -90,6 +99,9 @@ public class LevelingManager {
         e.setNewExp(0);
         e.setNewLevel(1);
         e.setDroppedExp(0);
+        allPlPerks.put(e.getEntity().getUniqueId(), new PlayerPerks(plugin));
+        for(Perk perk: PlayerPerks.PERKS)
+            perk.getImplementation().revoke(e.getEntity(), plugin);
     }
 
 }

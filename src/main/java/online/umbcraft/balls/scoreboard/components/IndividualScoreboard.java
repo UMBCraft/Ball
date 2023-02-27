@@ -22,7 +22,7 @@ public class IndividualScoreboard {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         this.board = manager.getNewScoreboard();
         this.player = player;
-        scores = new ArrayList<IndividualScore>();
+        scores = new ArrayList<>();
 
         objective = board.registerNewObjective(
                 StringUtils.substring(player.toString(),0,15)

@@ -9,7 +9,7 @@ public class PotencyPerk extends PerkImplementation {
 
     @Override
     public void apply(Player p, JingleBall plugin) {
-        String message = "You suddenly feel a burst of wisdom! (better items)";
+        String message = "You suddenly feel a burst of wisdom! (+improved items)";
         p.sendMessage(ChatColor.GREEN+message);
     }
 }

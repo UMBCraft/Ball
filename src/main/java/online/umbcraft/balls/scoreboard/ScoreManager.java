@@ -37,6 +37,14 @@ public class ScoreManager {
         return unsorted_scores.keySet();
     }
 
+    public synchronized List<String> getOrder() {
+        List<String> toReturn = new ArrayList<>();
+        for(String s: sorted_scores.descendingKeySet())
+            toReturn.add(sorted_scores.get(s).getName()+" - "+sorted_scores.get(s).getScore());
+
+        return toReturn;
+    }
+
     public synchronized UUID getTopPlayer() {
         return sorted_scores.firstEntry().getValue().getUUID();
     }
@@ -78,7 +86,7 @@ public class ScoreManager {
     private synchronized void updateBoardsTop() {
         int rank = 1;
         for (String s : sorted_scores.descendingKeySet()) {
-            if (rank >= TOP_COUNT)
+            if (rank > TOP_COUNT)
                 return;
 
             ScoreNode sn = sorted_scores.get(s);
@@ -144,10 +152,9 @@ public class ScoreManager {
     }
 
     public synchronized void setPlayerScore(UUID uuid, int to_set) {
-
         ScoreNode p_score = unsorted_scores.get(uuid);
         adjustPlayerScore(uuid, -p_score.getScore());
-
+        adjustPlayerScore(uuid, to_set);
     }
 
     public synchronized int getPlayerScore(UUID uuid) {

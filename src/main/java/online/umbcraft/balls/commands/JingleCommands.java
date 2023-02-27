@@ -30,6 +30,7 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
+        
         if(args.length == 0) {
             return onEmptyCommand(sender);
         }
@@ -81,6 +82,12 @@ public class JingleCommands implements CommandExecutor, TabCompleter {
 
         if(option.equalsIgnoreCase("start")) {
             sender.sendMessage(ChatColor.GOLD + "Started tournament!");
+
+            for(Player p: plugin.getServer().getOnlinePlayers()) {
+                plugin.getLevelingManager().resetExp(p);
+                plugin.getScoreManager().setPlayerScore(p.getUniqueId(), 0);
+                p.setHealth(0.0);
+            }
             plugin.getTournamentManager().startTournament();
         }
         else if (option.equalsIgnoreCase("clear")) {

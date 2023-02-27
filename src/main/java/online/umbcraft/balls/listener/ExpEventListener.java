@@ -18,12 +18,19 @@ public class ExpEventListener implements Listener {
     final private JingleBall plugin;
     final private LevelingManager lm;
 
-    final private double XP_PER_KILL = 5.1;
-    final private double XP_PER_LEVEL = 1.55 ;
+    final private double XP_PER_KILL = 8.1;
+    final private double XP_PER_LEVEL = 2.55 ;
 
     public ExpEventListener(JingleBall plugin, LevelingManager lm) {
         this.plugin = plugin;
         this.lm = lm;
+
+        plugin.getServer().getScheduler().scheduleSyncRepeatingTask(
+                plugin,
+                lm::expAll,
+                80,
+                20
+        );
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
@@ -34,12 +41,6 @@ public class ExpEventListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onJoin(PlayerJoinEvent e) {
         lm.resetExp(e.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onRespawn(PlayerRespawnEvent e) {
-        //lm.setExp(e.getPlayer(), 0);       <- doesn't work!??!? oh well, don't need it
-
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

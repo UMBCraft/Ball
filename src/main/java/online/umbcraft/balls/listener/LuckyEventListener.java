@@ -1,6 +1,7 @@
 package online.umbcraft.balls.listener;
 
 import online.umbcraft.balls.JingleBall;
+import online.umbcraft.balls.levels.components.perks.Perk;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -29,7 +30,7 @@ public class LuckyEventListener implements Listener {
         plugin = p;
     }
 
-    public static void bellBomb(Location loc, ProjectileSource player) {
+    public static void bellBomb(Location loc, Player player) {
 
         Location spawn = loc.add(new Vector(0, 1, 0));
         PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 5 * 20, 4);
@@ -38,9 +39,15 @@ public class LuckyEventListener implements Listener {
                 slow.apply((LivingEntity) e);
         }
 
+
         spawn.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, spawn, 25, 3, 1, 3);
 
-        for (int i = 0; i < 64; i++) {
+        boolean improved = plugin.getLevelingManager().hasPerk(player, Perk.POTENCY);
+        int iters = 64;
+        if(improved)
+            iters = 192;
+
+        for (int i = 0; i < iters; i++) {
             for(int count = 0; count < 3; count++) {
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(
                         plugin, () -> {
@@ -57,14 +64,19 @@ public class LuckyEventListener implements Listener {
         }
     }
 
-    public static void placeIcicleSphere(Item icicle) {
+    public static void placeIcicleSphere(Item icicle, Player p) {
         if (icicle.isDead())
             return;
 
         Location center = icicle.getLocation().getBlock().getLocation().add(new Vector(0.5, 0.5, 0.5));
 
         icicle.remove();
+
+        boolean improved = plugin.getLevelingManager().hasPerk(p, Perk.POTENCY);
         double sphere_radius = 2.5;
+        if(improved)
+            sphere_radius = 3.5;
+
 
         center.getWorld().playSound(center, Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 10, 1f);
         int incr = 0;
@@ -119,6 +131,8 @@ public class LuckyEventListener implements Listener {
             return;
 
 
+        boolean improved = plugin.getLevelingManager().hasPerk(e.getPlayer(), Perk.POTENCY);
+
         if (type == Material.IRON_HOE) {
             addRecentUser(e.getPlayer().getUniqueId(), 15);
             e.setCancelled(true);
@@ -144,10 +158,17 @@ public class LuckyEventListener implements Listener {
             float accuracy = 0.4f;
             int num_snowballs = 6;
             int speed = 2;
+            if(improved) {
+                num_snowballs = 10;
+            }
             if (e.getPlayer().isSneaking()) {
                 accuracy = 0.025f;
                 num_snowballs = 1;
                 speed = 3;
+                if(improved) {
+                    num_snowballs = 3;
+                    speed = 4;
+                }
             }
 
             for (int i = 0; i < num_snowballs; i++) {
@@ -170,6 +191,8 @@ public class LuckyEventListener implements Listener {
             Location l = e.getPlayer().getLocation();
 
             double circle_radius = 4.5;
+            if(improved)
+                circle_radius = 7.5;
             for (double a = 0; a < Math.PI * 2; a += Math.PI / (Math.PI * circle_radius)) {
                 double x = Math.cos(a) * circle_radius;
                 double z = Math.sin(a) * circle_radius;
@@ -177,7 +200,11 @@ public class LuckyEventListener implements Listener {
                 to_set.getWorld().spawnParticle(Particle.SQUID_INK, to_set, 5);
             }
 
-            Collection<Entity> entities = l.getWorld().getNearbyEntities(l, 5, 5, 5);
+            int r = 5;
+            if(improved)
+                r = 8;
+
+            Collection<Entity> entities = l.getWorld().getNearbyEntities(l, r, r, r);
             entities.remove(e.getPlayer());
 
             PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 4 * 20, 2);
@@ -218,7 +245,7 @@ public class LuckyEventListener implements Listener {
             shard_item.setThrower(e.getPlayer().getUniqueId());
             new BukkitRunnable() {
                 public void run() {
-                    placeIcicleSphere(shard_item);
+                    placeIcicleSphere(shard_item, e.getPlayer());
                 }
             }
                     .runTaskLater(plugin, 60);
@@ -226,13 +253,15 @@ public class LuckyEventListener implements Listener {
 
         }
         if (type == Material.SWEET_BERRIES) {
-
+            int amp = 2;
+            if(improved)
+                amp = 4;
             addRecentUser(e.getPlayer().getUniqueId(), 20);
             e.setCancelled(true);
             e.getItem().setAmount(e.getItem().getAmount() - 1);
             e.getPlayer().sendMessage(ChatColor.LIGHT_PURPLE + "You eat the berries and feel a sudden burst in energy!");
-            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 6 * 20, 2));
-            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2 * 20, 2));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 6 * 20, amp));
+            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2 * 20, amp));
             return;
         }
 
