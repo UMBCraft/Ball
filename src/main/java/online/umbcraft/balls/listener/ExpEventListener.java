@@ -18,8 +18,8 @@ public class ExpEventListener implements Listener {
     final private JingleBall plugin;
     final private LevelingManager lm;
 
-    final private double XP_PER_KILL = 8.1;
-    final private double XP_PER_LEVEL = 2.55 ;
+    final private double XP_PER_KILL = 15;
+    final private double XP_PER_LEVEL = 5;
 
     public ExpEventListener(JingleBall plugin, LevelingManager lm) {
         this.plugin = plugin;

@@ -18,10 +18,10 @@ public class LevelingManager {
 
     final private static Set<Perk>[] perkOrdering = new Set[] {
             PlayerPerks.MINOR_PERKS,
-            PlayerPerks.MINOR_PERKS,
             PlayerPerks.MEDIAN_PERKS,
             PlayerPerks.MINOR_PERKS,
             PlayerPerks.MAJOR_PERKS,
+            PlayerPerks.MINOR_PERKS,
             PlayerPerks.MEDIAN_PERKS};
 
     public LevelingManager(JingleBall plugin) {

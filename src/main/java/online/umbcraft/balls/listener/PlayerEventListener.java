@@ -260,7 +260,7 @@ public class PlayerEventListener implements Listener {
 
         System.out.println("has feather perk? " + plugin.getLevelingManager().hasPerk(p, Perk.FEATHER));
         if (plugin.getLevelingManager().hasPerk(p, Perk.FEATHER)) {
-            double newdamage = e.getDamage() - 2;
+            double newdamage = e.getDamage() - 4;
             if (newdamage <= 0)
                 e.setCancelled(true);
             e.setDamage(newdamage);
@@ -312,7 +312,7 @@ public class PlayerEventListener implements Listener {
             Player hurter = (Player) e.getDamager();
             if (plugin.getLevelingManager().hasPerk(hurter, Perk.SLOW)) {
                 hurtee.addPotionEffect(
-                        new PotionEffect(PotionEffectType.SLOW, 20 * 2, 0));
+                        new PotionEffect(PotionEffectType.SLOW, 20 * 3, 1));
             }
             finalDamage = (plugin.getLevelingManager().hasPerk(hurter, Perk.MELEE) ? 2 : 0);
         }
